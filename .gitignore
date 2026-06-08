@@ -1,0 +1,18 @@
+# Carpetas de caché de Python
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Entornos virtuales (si usas venv, virtualenv, conda)
+.venv/
+venv/
+env/
+ENV/
+
+# Configuración local de VS Code
+.vscode/
+
+# Archivos del sistema operativo o temporales
+.DS_Store
+Thumbs.db
