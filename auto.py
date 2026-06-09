@@ -29,7 +29,7 @@ class Auto:
 
         self.game_over = False
 
-    # ---------------- UPDATE ----------------
+    # ---------------- UPDATE ------------------
     def update(self, dt, teclas, terrain):
         suelo = get_ground(self.x, terrain)
         pendiente = get_slope(self.x, terrain)
@@ -67,7 +67,7 @@ class Auto:
         self.vel_x *= 0.992
 
         
-        limite_vel = MAX_VEL * 1.5
+        limite_vel = MAX_VEL * 1.7
         self.vel_x = max(-limite_vel, min(limite_vel, self.vel_x))
 
         
