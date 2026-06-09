@@ -8,10 +8,20 @@ from terreno import get_ground, get_slope
 class Auto:
 
     def __init__(self):
+<<<<<<< HEAD
         self.reset()
 
     # ---------------- RESET ----------------
     def reset(self):
+=======
+
+        self.reset()
+
+    # ---------------- RESET ----------------
+
+    def reset(self):
+
+>>>>>>> 784e1417c2af8af144f3c898148a7ca48788f8b3
         self.x = 300
         self.y = 200
 
@@ -29,13 +39,23 @@ class Auto:
 
         self.game_over = False
 
+<<<<<<< HEAD
     # ---------------- UPDATE ------------------
     def update(self, dt, teclas, terrain):
         suelo = get_ground(self.x, terrain)
+=======
+    # ---------------- UPDATE ----------------
+
+    def update(self, dt, teclas, terrain):
+
+        suelo = get_ground(self.x, terrain)
+
+>>>>>>> 784e1417c2af8af144f3c898148a7ca48788f8b3
         pendiente = get_slope(self.x, terrain)
 
         tocando_suelo = False
 
+<<<<<<< HEAD
         # ---------------- CONTROLES Y VELOCIDAD ----------------
         aceleracion = 0
 
@@ -59,10 +79,40 @@ class Auto:
         self.vel_y += GRAVEDAD * dt
 
         # ---------------- MOVIMIENTO ----------------
+=======
+        # ---------------- CONTROLES ----------------
+
+        aceleracion = 0
+
+        if teclas[pygame.K_d] and self.fuel > 0:
+
+            aceleracion += MOTOR
+
+            # Consumo base
+            self.fuel -= 0.12 * dt
+
+            # Consumo extra por velocidad
+            self.fuel -= abs(self.vel_x) * 0.003 * dt
+
+            # Consumo extra por subir pendientes
+            self.fuel -= abs(math.sin(pendiente)) * 0.02 * dt
+
+        if teclas[pygame.K_a]:
+
+            aceleracion -= FRENO
+
+        # ---------------- GRAVEDAD ----------------
+
+        self.vel_y += GRAVEDAD * dt
+
+        # ---------------- MOVIMIENTO ----------------
+
+>>>>>>> 784e1417c2af8af144f3c898148a7ca48788f8b3
         traccion = max(0.45, math.cos(pendiente))
 
         self.vel_x += aceleracion * traccion * dt
 
+<<<<<<< HEAD
         
         self.vel_x *= 0.992
 
@@ -147,6 +197,116 @@ class Auto:
             self.game_over = True
 
     # ---------------- DIBUJAR ----------------
+=======
+        # Resistencia natural
+        self.vel_x *= 0.992
+
+        # Limite velocidad
+        self.vel_x = max(-MAX_VEL, min(MAX_VEL, self.vel_x))
+
+        # Movimiento horizontal
+        self.x += self.vel_x * dt
+
+        if self.x < terrain[0][0] + 50:
+
+            self.x = terrain[0][0] + 50
+
+            self.vel_x = max(0, self.vel_x)
+
+        # Movimiento vertical
+        self.y += self.vel_y * dt
+
+        # ---------------- LIMITE HACIA ATRAS ----------------
+
+        if self.x < 0:
+
+            self.x = 0
+
+            if self.vel_x < 0:
+
+                self.vel_x = 0
+
+        # ---------------- COLISIONES ----------------
+
+        wheel_y = self.y + 30
+
+        if wheel_y > suelo:
+
+            tocando_suelo = True
+
+            profundidad = wheel_y - suelo
+
+            # Suspensión
+            fuerza_suspension = profundidad * 0.45
+
+            self.y -= fuerza_suspension
+
+            # Rebote
+            self.vel_y *= -0.08
+
+            # Ajuste pendiente
+            diferencia = pendiente - self.rotacion
+
+            self.rot_vel += diferencia * 0.08 * dt
+
+            # Fricción
+            self.vel_x *= 0.995
+
+            # Estabilidad
+            self.rot_vel *= 0.82
+
+            # Alineación
+            self.rotacion += diferencia * 0.12 * dt
+
+            # Voltearse
+            if abs(self.rotacion) > math.radians(120):
+
+                self.game_over = True
+
+        else:
+
+            # ---------------- CONTROL AEREO ----------------
+
+            if teclas[pygame.K_RIGHT]:
+
+                self.rot_vel -= 0.045 * dt
+
+            if teclas[pygame.K_LEFT]:
+
+                self.rot_vel += 0.045 * dt
+
+            # Resistencia aire
+            self.rot_vel *= 0.995
+
+        # ---------------- ROTACION ----------------
+
+        self.rotacion += self.rot_vel * dt
+
+        self.rot_vel = max(-0.35, min(0.35, self.rot_vel))
+
+        # ---------------- RUEDAS ----------------
+
+        self.wheel_rotation += self.vel_x * 0.12
+
+        # ---------------- CAMARA ----------------
+
+        objetivo_camara = self.x - 350
+
+        self.cam_x += (objetivo_camara - self.cam_x) * 0.08
+
+        # ---------------- FUEL ----------------
+
+        self.fuel = max(0, self.fuel)
+
+        # ---------------- CAIDA ----------------
+
+        if self.y > ALTO + 300:
+
+            self.game_over = True
+
+    # ---------------- DIBUJAR ----------------
+
+>>>>>>> 784e1417c2af8af144f3c898148a7ca48788f8b3
     def draw(self, pantalla):
 
         car_surface = pygame.Surface(
@@ -155,6 +315,10 @@ class Auto:
         )
 
         # ---------------- SOMBRA ----------------
+<<<<<<< HEAD
+=======
+
+>>>>>>> 784e1417c2af8af144f3c898148a7ca48788f8b3
         pygame.draw.ellipse(
             car_surface,
             (0, 0, 0, 70),
@@ -162,6 +326,10 @@ class Auto:
         )
 
         # ---------------- SUSPENSION ----------------
+<<<<<<< HEAD
+=======
+
+>>>>>>> 784e1417c2af8af144f3c898148a7ca48788f8b3
         pygame.draw.line(
             car_surface,
             GRIS,
@@ -179,6 +347,10 @@ class Auto:
         )
 
         # ---------------- CARROCERIA ----------------
+<<<<<<< HEAD
+=======
+
+>>>>>>> 784e1417c2af8af144f3c898148a7ca48788f8b3
         pygame.draw.rect(
             car_surface,
             ROJO,
@@ -194,6 +366,10 @@ class Auto:
         )
 
         # ---------------- VENTANAS ----------------
+<<<<<<< HEAD
+=======
+
+>>>>>>> 784e1417c2af8af144f3c898148a7ca48788f8b3
         pygame.draw.rect(
             car_surface,
             (120, 200, 255),
@@ -209,6 +385,10 @@ class Auto:
         )
 
         # ---------------- FAROS ----------------
+<<<<<<< HEAD
+=======
+
+>>>>>>> 784e1417c2af8af144f3c898148a7ca48788f8b3
         pygame.draw.circle(
             car_surface,
             (255, 255, 180),
@@ -224,6 +404,10 @@ class Auto:
         )
 
         # ---------------- ESCAPE ----------------
+<<<<<<< HEAD
+=======
+
+>>>>>>> 784e1417c2af8af144f3c898148a7ca48788f8b3
         pygame.draw.rect(
             car_surface,
             (90, 90, 90),
@@ -232,6 +416,10 @@ class Auto:
         )
 
         # ---------------- RUEDAS ----------------
+<<<<<<< HEAD
+=======
+
+>>>>>>> 784e1417c2af8af144f3c898148a7ca48788f8b3
         for rx in (45, 125):
 
             pygame.draw.circle(
@@ -280,7 +468,12 @@ class Auto:
                 3
             )
 
+<<<<<<< HEAD
         # ---------------- ROTACION FINAL PARA PINTAR ----------------
+=======
+        # ---------------- ROTACION ----------------
+
+>>>>>>> 784e1417c2af8af144f3c898148a7ca48788f8b3
         carro_rotado = pygame.transform.rotate(
             car_surface,
             math.degrees(self.rotacion)
