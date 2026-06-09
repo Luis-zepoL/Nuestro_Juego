@@ -54,18 +54,79 @@ def dibujar_hud(pantalla, auto):
 
 def dibujar_menu(
     pantalla,
-    opcion
+    opcion,
+    animacion
 ):
 
-    s = pygame.Surface(
+    # Fondo degradado
+    for y in range(ALTO):
+
+        color = (
+            10,
+            20,
+            min(255, 40 + y // 4)
+        )
+
+        pygame.draw.line(
+            pantalla,
+            color,
+            (0, y),
+            (ANCHO, y)
+        )
+
+
+
+
+    for i in range(60):
+
+        x = (i * 137) % ANCHO
+
+        y = (i * 91) % ALTO
+
+        brillo = 180 + int(
+         75 * math.sin(
+            animacion * 0.05 + i
+         )
+    )
+
+    pygame.draw.circle(
+        pantalla,
+        (
+            brillo,
+            brillo,
+            brillo
+        ),
+        (x, y),
+        2
+    )
+
+    # Oscurecer
+    sombra = pygame.Surface(
         (ANCHO, ALTO),
         pygame.SRCALPHA
     )
 
-    s.fill((0, 0, 0, 190))
+    sombra.fill((0, 0, 0, 120))
 
-    pantalla.blit(s, (0, 0))
+    pantalla.blit(sombra, (0, 0))
 
+    # Sombra del título
+    titulo_sombra = fuente_grande.render(
+        "PROTOTIPO DE JUEGO",
+        True,
+        NEGRO
+    )
+
+    pantalla.blit(
+        titulo_sombra,
+        (
+            ANCHO // 2
+            - titulo_sombra.get_width() // 2 + 4,
+            104
+        )
+    )
+
+    # Título
     titulo = fuente_grande.render(
         "PROTOTIPO DE JUEGO",
         True,
@@ -75,9 +136,65 @@ def dibujar_menu(
     pantalla.blit(
         titulo,
         (
-            ANCHO // 2 - titulo.get_width() // 2,
-            120
+            ANCHO // 2
+            - titulo.get_width() // 2,
+            100
         )
+    )
+
+
+
+    auto_y = 180 + math.sin(
+        animacion * 0.08
+    ) * 10
+
+    pygame.draw.rect(
+        pantalla,
+        ROJO,
+        (
+            ANCHO // 2 - 70,
+            auto_y,
+            140,
+            40
+        ),
+        border_radius=10
+    )
+
+    pygame.draw.circle(
+        pantalla,
+        NEGRO,
+        (
+            ANCHO // 2 - 40,
+            int(auto_y + 45)
+        ),
+        18
+    )
+
+    pygame.draw.circle(
+        pantalla,
+        NEGRO,
+        (
+            ANCHO // 2 + 40,
+            int(auto_y + 45)
+        ),
+        18
+    )
+
+    # Caja principal
+    pygame.draw.rect(
+        pantalla,
+        (
+            100,
+            140,
+            200 + int(55 * math.sin(animacion * 0.05))
+        ),
+        (
+            ANCHO // 2 - 220,
+            230,
+            440,
+            240
+        ),
+        border_radius=20
     )
 
     opciones = [
@@ -91,7 +208,34 @@ def dibujar_menu(
         color = BLANCO
 
         if i == opcion:
+
+            pygame.draw.rect(
+                pantalla,
+                (70, 120, 255),
+                (
+                    ANCHO // 2 - 200,
+                    255 + i * 60,
+                    400,
+                    45
+                ),
+                border_radius=10
+            )
+
             color = AMARILLO
+
+            flecha = fuente.render(
+                ">",
+                True,
+                BLANCO
+            )
+
+            pantalla.blit(
+                flecha,
+                (
+                    ANCHO // 2 - 170,
+                    260 + i * 60
+                )
+            )
 
         texto = fuente.render(
             texto_opcion,
@@ -102,10 +246,26 @@ def dibujar_menu(
         pantalla.blit(
             texto,
             (
-                ANCHO // 2 - texto.get_width() // 2,
+                ANCHO // 2
+                - texto.get_width() // 2,
                 260 + i * 60
             )
         )
+
+    ayuda = fuente_pequena.render(
+        "ENTER seleccionar | ARRIBA/ABAJO navegar",
+        True,
+        BLANCO
+    )
+
+    pantalla.blit(
+        ayuda,
+        (
+            ANCHO // 2
+            - ayuda.get_width() // 2,
+            520
+        )
+    )
 # ------------ selector de mapa ----------------
 def dibujar_selector_mapa(
     pantalla,
@@ -118,7 +278,7 @@ def dibujar_selector_mapa(
         pygame.SRCALPHA
     )
 
-    s.fill((0, 0, 0, 190))
+    s.fill((0, 0, 0, 170))
 
     pantalla.blit(s, (0, 0))
 
@@ -131,45 +291,162 @@ def dibujar_selector_mapa(
     pantalla.blit(
         titulo,
         (
-            ANCHO // 2 - titulo.get_width() // 2,
-            120
+            ANCHO // 2
+            - titulo.get_width() // 2,
+            80
         )
     )
 
     for i, mapa in enumerate(mapas):
 
-        color = BLANCO
+        y = 220 + i * 120
+
+        color_borde = BLANCO
 
         if i == seleccion:
-            color = AMARILLO
+            color_borde = AMARILLO
 
-        texto = fuente.render(
+        pygame.draw.rect(
+            pantalla,
+            (30, 30, 45),
+            (
+                ANCHO // 2 - 220,
+                y,
+                440,
+                90
+            ),
+            border_radius=15
+        )
+
+        pygame.draw.rect(
+            pantalla,
+            color_borde,
+            (
+                ANCHO // 2 - 220,
+                y,
+                440,
+                90
+            ),
+            3,
+            border_radius=15
+        )
+
+        nombre = fuente.render(
             mapa,
             True,
-            color
+            BLANCO
         )
 
         pantalla.blit(
-            texto,
+            nombre,
             (
-                ANCHO // 2 - texto.get_width() // 2,
-                260 + i * 60
+                ANCHO // 2
+                - nombre.get_width() // 2,
+                y + 15
             )
         )
 
-    ayuda = fuente_pequena.render(
-        "ENTER para elegir",
-        True,
-        BLANCO
-    )
+        descripcion = ""
 
-    pantalla.blit(
-        ayuda,
-        (
-            ANCHO // 2 - ayuda.get_width() // 2,
-            500
+        if mapa == "Pradera":
+            descripcion = "Colinas verdes"
+
+        elif mapa == "Desierto":
+            descripcion = "Arena y dunas"
+
+        texto_desc = fuente_pequena.render(
+            descripcion,
+            True,
+            (200, 200, 200)
         )
-    )
+
+        pantalla.blit(
+            texto_desc,
+            (
+                ANCHO // 2
+                - texto_desc.get_width() // 2,
+                y + 50
+            )
+        )
+
+        pygame.draw.rect(
+            pantalla,
+            (20, 20, 30),
+            (
+                40,
+                180,
+                250,
+                180
+            ),
+            border_radius=15
+        )
+
+        if mapas[seleccion] == "Pradera":
+
+            pygame.draw.rect(
+                pantalla,
+                (135, 206, 235),
+                (
+                    50,
+                    190,
+                    230,
+                    160
+                ),
+                border_radius=10
+            )
+
+            pygame.draw.rect(
+                pantalla,
+                VERDE,
+                (
+                    50,
+                    290,
+                    230,
+                    60
+                ),
+                border_radius=10
+            )
+
+        else:
+
+            pygame.draw.rect(
+                pantalla,
+                (255, 210, 120),
+                (
+                    50,
+                    190,
+                    230,
+                    160
+                ),
+                border_radius=10
+            )
+
+            pygame.draw.rect(
+                pantalla,
+                (194, 178, 128),
+                (
+                    50,
+                    290,
+                    230,
+                    60
+                ),
+                border_radius=10
+            )
+
+        ayuda = fuente_pequena.render(
+            "ENTER confirmar",
+            True,
+            BLANCO
+        )
+
+        pantalla.blit(
+            ayuda,
+            (
+                ANCHO // 2
+                - ayuda.get_width() // 2,
+                620
+            )
+        )
 
 # ---------------- GAME OVER ----------------
 

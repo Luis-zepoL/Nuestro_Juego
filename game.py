@@ -52,6 +52,7 @@ class Game:
         )
 
         self.running = True
+        self.menu_anim = 0
 
     # ---------------- EVENTOS ----------------
 
@@ -121,6 +122,7 @@ class Game:
     def update(self, dt):
 
         teclas = pygame.key.get_pressed()
+        self.menu_anim += dt
 
         if self.estado == JUGANDO:
 
@@ -156,7 +158,11 @@ class Game:
     def draw(self):
 
         # Fondo cielo
-        if self.mapas[self.mapa_actual] == "Pradera":
+        if self.estado == MENU:
+            self.pantalla.fill((15, 20, 40))
+        elif self.estado == SELECCION_MAPA:
+            self.pantalla.fill((20, 25, 50))
+        elif self.mapas[self.mapa_actual] == "Pradera":
             self.pantalla.fill((135, 206, 235))
         else:
             self.pantalla.fill((255, 210, 120))
@@ -195,7 +201,8 @@ class Game:
         if self.estado == MENU:
             dibujar_menu(
                 self.pantalla,
-                self.opcion_menu
+                self.opcion_menu,
+                self.menu_anim
             )
 
         elif self.estado == SELECCION_MAPA:
