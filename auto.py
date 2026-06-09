@@ -40,16 +40,16 @@ class Auto:
         aceleracion = 0
 
         if teclas[pygame.K_d] and self.fuel > 0:
-            # Multiplicamos el motor x1.5 para que acelere más rápido
+            
             aceleracion += MOTOR * 1.5
 
-            # Consumo base
+           
             self.fuel -= 0.12 * dt
 
-            # Consumo extra por velocidad
+            
             self.fuel -= abs(self.vel_x) * 0.003 * dt
 
-            # Consumo extra por subir pendientes
+            
             self.fuel -= abs(math.sin(pendiente)) * 0.02 * dt
 
         if teclas[pygame.K_a]:
@@ -63,21 +63,21 @@ class Auto:
 
         self.vel_x += aceleracion * traccion * dt
 
-        # Resistencia natural
+        
         self.vel_x *= 0.992
 
-        # Límite velocidad (Multiplicado x1.5 para una mayor velocidad máxima)
+        
         limite_vel = MAX_VEL * 1.5
         self.vel_x = max(-limite_vel, min(limite_vel, self.vel_x))
 
-        # Movimiento horizontal
+        
         self.x += self.vel_x * dt
 
         if self.x < terrain[0][0] + 50:
             self.x = terrain[0][0] + 50
             self.vel_x = max(0, self.vel_x)
 
-        # Movimiento vertical
+        
         self.y += self.vel_y * dt
 
         # ---------------- LIMITE HACIA ATRAS ----------------
@@ -89,51 +89,47 @@ class Auto:
         # ---------------- COLISIONES Y ROTACIÓN ----------------
         wheel_y = self.y + 30
         
-        # Normalizamos la rotación a un valor entre -180 y 180 grados
+        
         rot_real = (self.rotacion + math.pi) % (2 * math.pi) - math.pi
 
         if wheel_y > suelo:
             tocando_suelo = True
 
-            # ¿Nos volcamos? Si la inclinación pasa los 120 grados, Game Over.
-            # Como quitamos el límite en el suelo, ahora sí puede rodar y perder.
+            
             if abs(rot_real) > math.radians(120):
                 self.game_over = True
             
             else:
                 profundidad = wheel_y - suelo
 
-                # Suspensión
+                
                 fuerza_suspension = profundidad * 0.45
                 self.y -= fuerza_suspension
 
-                # Rebote
+                
                 self.vel_y *= -0.08
 
-                # Ajuste a la pendiente
                 diferencia = pendiente - rot_real
                 self.rot_vel += diferencia * 0.04 * dt
                 self.rotacion += diferencia * 0.05 * dt
 
-                # Fricción y Estabilidad
                 self.vel_x *= 0.995
                 self.rot_vel *= 0.82
 
         else:
             # ---------------- CONTROL AEREO (MÁS LENTO) ----------------
             if teclas[pygame.K_RIGHT]:
-                self.rot_vel -= 0.015 * dt  # Giro más lento
+                self.rot_vel -= 0.015 * dt  
 
             if teclas[pygame.K_LEFT]:
-                self.rot_vel += 0.015 * dt  # Giro más lento
+                self.rot_vel += 0.015 * dt  
 
-            # Resistencia aire
             self.rot_vel *= 0.995
 
         # ---------------- APLICAR ROTACION ----------------
         self.rotacion += self.rot_vel * dt
         
-        # Limitar la velocidad máxima a la que puede girar (Reducido para que se sienta más pesado)
+
         self.rot_vel = max(-0.12, min(0.12, self.rot_vel))
 
         # ---------------- RUEDAS ----------------
