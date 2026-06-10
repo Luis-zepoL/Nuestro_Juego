@@ -102,9 +102,15 @@ class Game:
 
                     if evento.key == pygame.K_r:
 
-                            self.auto.reset()
+                        self.auto.reset()
 
-                            self.estado = JUGANDO
+                        self.estado = JUGANDO
+
+                    elif evento.key == pygame.K_m:
+
+                        self.auto.reset()
+
+                        self.estado = MENU
 
                 elif self.estado == SELECCION_MAPA:
 

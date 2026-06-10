@@ -480,15 +480,34 @@ def dibujar_game_over(pantalla, auto):
     )
 
     reiniciar = fuente.render(
-        "Presiona R para reiniciar",
-        True,
-        AMARILLO
-    )
+    "R - Reiniciar partida",
+    True,
+    BLANCO
+)
 
     pantalla.blit(
-        reiniciar,
-        (ANCHO // 2 - reiniciar.get_width() // 2, 420)
+    reiniciar,
+    (
+        ANCHO // 2
+        - reiniciar.get_width() // 2,
+        400
     )
+)
+
+    menu = fuente.render(
+    "M - Volver al menu principal",
+    True,
+    BLANCO
+)
+
+    pantalla.blit(
+    menu,
+    (
+        ANCHO // 2
+        - menu.get_width() // 2,
+        450
+    )
+)
 
 # ---------------- VELOCIMETRO ----------------
 
