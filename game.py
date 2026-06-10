@@ -56,6 +56,19 @@ class Game:
         )
 
         self.running = True
+        self.game_over_timer = 0
+
+        self.opcion_game_over = 0
+
+        self.mensajes_game_over = [
+            "¿Y asi tienes licencia?",
+            "Mejor suerte la proxima",
+            "El seguro no cubre eso",
+            "La gravedad gano",
+            "El coche no opina igual",
+            "Eso dolio mas de lo esperado"
+        ]
+
         self.menu_anim = 0
 
     # ---------------- EVENTOS ----------------
@@ -98,20 +111,36 @@ class Game:
 
                             self.running = False
 
+                #Navegación del menú Game Over
                 elif self.estado == GAME_OVER:
 
-                    if evento.key == pygame.K_r:
+                    if evento.key == pygame.K_UP:
 
-                        self.auto.reset()
+                        self.opcion_game_over = (
+                            self.opcion_game_over - 1
+                        ) % 2
 
-                        self.estado = JUGANDO
+                    elif evento.key == pygame.K_DOWN:
 
-                    elif evento.key == pygame.K_m:
+                        self.opcion_game_over = (
+                            self.opcion_game_over + 1
+                        ) % 2
 
-                        self.auto.reset()
+                    elif evento.key == pygame.K_RETURN:
 
-                        self.estado = MENU
+                        if self.opcion_game_over == 0:
 
+                            self.auto.reset()
+
+                            self.estado = JUGANDO
+
+                        else:
+
+                            self.auto.reset()
+
+                            self.estado = MENU
+
+                # Navegación del menú de selección de mapa
                 elif self.estado == SELECCION_MAPA:
 
                     if evento.key == pygame.K_UP:
@@ -158,8 +187,16 @@ class Game:
                 self.auto,
                 self.terrain
             )
-
+            #tiempo de game over para mostrar mensaje antes de pasar a pantalla de game over
             if self.auto.game_over:
+                self.game_over_timer = 0.5
+                self.estado = GAME_OVER_DELAY
+        
+        elif self.estado == GAME_OVER_DELAY:
+
+            self.game_over_timer -= dt / FPS
+
+            if self.game_over_timer <= 0:
 
                 self.estado = GAME_OVER
 
@@ -228,10 +265,29 @@ class Game:
                 self.mapa_actual
             )
 
+        if self.estado == GAME_OVER_DELAY:
+
+            s = pygame.Surface(
+                (ANCHO, ALTO),
+                pygame.SRCALPHA
+            )
+
+            s.fill((0, 0, 0, 180))
+
+            self.pantalla.blit(
+                s,
+                (0, 0)
+            )
+
         elif self.estado == GAME_OVER:
             dibujar_game_over(
                 self.pantalla,
-                self.auto
+                self.auto,
+                self.opcion_game_over,
+                self.mensajes_game_over[
+                    int(self.auto.x)
+                    % len(self.mensajes_game_over)
+                ]
             )
 
         # Actualizar pantalla

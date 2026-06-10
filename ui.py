@@ -450,64 +450,121 @@ def dibujar_selector_mapa(
 
 # ---------------- GAME OVER ----------------
 
-def dibujar_game_over(pantalla, auto):
+def dibujar_game_over(
+    pantalla,
+    auto,
+    opcion,
+    mensaje
+):
 
-    s = pygame.Surface((ANCHO, ALTO), pygame.SRCALPHA)
-    s.fill((0, 0, 0, 210))
+    sombra = pygame.Surface(
+        (ANCHO, ALTO),
+        pygame.SRCALPHA
+    )
 
-    pantalla.blit(s, (0, 0))
+    sombra.fill((0, 0, 0, 220))
 
-    texto = fuente_grande.render(
-        "GAME OVER",
+    pantalla.blit(
+        sombra,
+        (0, 0)
+    )
+
+    # Caja principal
+
+    pygame.draw.rect(
+        pantalla,
+        (30, 30, 45),
+        (
+            ANCHO // 2 - 280,
+            140,
+            560,
+            340
+        ),
+        border_radius=20
+    )
+
+    pygame.draw.rect(
+        pantalla,
+        ROJO,
+        (
+            ANCHO // 2 - 280,
+            140,
+            560,
+            340
+        ),
+        4,
+        border_radius=20
+    )
+
+    titulo = fuente_grande.render(
+        mensaje,
         True,
-        ROJO
+        BLANCO
     )
 
     pantalla.blit(
-        texto,
-        (ANCHO // 2 - texto.get_width() // 2, 180)
+        titulo,
+        (
+            ANCHO // 2
+            - titulo.get_width() // 2,
+            190
+        )
     )
 
     score = fuente.render(
-        f"Distancia: {int(auto.x / 10)} m",
+        f"Distancia: {int(auto.x/10)} m",
         True,
         BLANCO
     )
 
     pantalla.blit(
         score,
-        (ANCHO // 2 - score.get_width() // 2, 300)
+        (
+            ANCHO // 2
+            - score.get_width() // 2,
+            260
+        )
     )
 
-    reiniciar = fuente.render(
-    "R - Reiniciar partida",
-    True,
-    BLANCO
-)
+    opciones = [
+        "Reiniciar",
+        "Volver al menu"
+    ]
 
-    pantalla.blit(
-    reiniciar,
-    (
-        ANCHO // 2
-        - reiniciar.get_width() // 2,
-        400
-    )
-)
+    for i, texto in enumerate(opciones):
 
-    menu = fuente.render(
-    "M - Volver al menu principal",
-    True,
-    BLANCO
-)
+        color = BLANCO
 
-    pantalla.blit(
-    menu,
-    (
-        ANCHO // 2
-        - menu.get_width() // 2,
-        450
-    )
-)
+        if i == opcion:
+
+            pygame.draw.rect(
+                pantalla,
+                (70, 120, 255),
+                (
+                    ANCHO // 2 - 180,
+                    320 + i * 70,
+                    360,
+                    50
+                ),
+                border_radius=10
+            )
+
+            color = AMARILLO
+
+        render = fuente.render(
+            texto,
+            True,
+            color
+        )
+
+        pantalla.blit(
+            render,
+            (
+                ANCHO // 2
+                - render.get_width() // 2,
+                330 + i * 70
+            )
+        )
 
 # ---------------- VELOCIMETRO ----------------
 
