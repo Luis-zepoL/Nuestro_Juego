@@ -43,7 +43,11 @@ class Game:
 
         self.mapa_actual = 0
 
+        generar_control_points()
+
         self.terrain = generar_terreno()
+
+        generar_nubes()
 
         self.auto = Auto()
 
@@ -166,6 +170,12 @@ class Game:
             self.pantalla.fill((135, 206, 235))
         else:
             self.pantalla.fill((255, 210, 120))
+
+        # Nubes
+        dibujar_nubes(
+            self.pantalla,
+            self.auto.cam_x
+        )
 
         # Terreno
         dibujar_terreno(

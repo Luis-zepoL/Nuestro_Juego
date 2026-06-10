@@ -81,8 +81,8 @@ class Auto:
         self.y += self.vel_y * dt
 
         # ---------------- LIMITE HACIA ATRAS ----------------
-        if self.x < 0:
-            self.x = 0
+        if self.x < 120:
+            self.x = 120
             if self.vel_x < 0:
                 self.vel_x = 0
 
