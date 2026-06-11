@@ -121,16 +121,16 @@ def generar_cactus():
 
     while x < 100000:
 
-        sobre_puente = False
+        dentro_puente = False
 
         for puente in PUENTES:
 
-            if puente["inicio"] - 200 <= x <= puente["fin"] + 200:
+            if puente["inicio"] - 100 <= x <= puente["fin"] + 100:
 
-                sobre_puente = True
+                dentro_puente = True
                 break
 
-        if not sobre_puente:
+        if not dentro_puente:
 
             CACTUS.append(x)
 
@@ -336,6 +336,10 @@ def dibujar_puentes(
 
         if len(puntos) > 1:
 
+            # =====================
+            # TABLONES DEL PUENTE
+            # =====================
+
             pygame.draw.lines(
                 pantalla,
                 (120, 75, 35),
@@ -352,7 +356,10 @@ def dibujar_puentes(
                 3
             )
 
-            # Dibujar plataformas en los extremos
+            # =====================
+            # EXTREMOS DEL PUENTE
+            # =====================
+
             inicio = (
                 puente["inicio"] - cam_x,
                 get_ground_sin_deformacion(
@@ -381,6 +388,18 @@ def dibujar_puentes(
                 ]
             )
 
+            # Tabla superior izquierda
+            pygame.draw.polygon(
+                pantalla,
+                (170, 130, 80),
+                [
+                    inicio,
+                    (inicio[0] - 60, inicio[1]),
+                    (inicio[0] - 60, inicio[1] + 8),
+                    (inicio[0], inicio[1] + 8)
+                ]
+            )
+
             # Plataforma derecha
             pygame.draw.polygon(
                 pantalla,
@@ -393,22 +412,96 @@ def dibujar_puentes(
                 ]
             )
 
-            pygame.draw.line(
+            # Tabla superior derecha
+            pygame.draw.polygon(
                 pantalla,
-                (90, 60, 30),
-                inicio,
-                (inicio[0], inicio[1] + 120),
-                6
+                (170, 130, 80),
+                [
+                    fin,
+                    (fin[0] + 60, fin[1]),
+                    (fin[0] + 60, fin[1] + 8),
+                    (fin[0], fin[1] + 8)
+                ]
             )
 
-            pygame.draw.line(
+            # =====================
+            # POSTES
+            # =====================
+
+            altura_poste = 80
+
+            pygame.draw.rect(
                 pantalla,
-                (90, 60, 30),
-                fin,
-                (fin[0], fin[1] + 120),
-                6
+                (110, 75, 35),
+                (
+                    inicio[0] - 5,
+                    inicio[1] - altura_poste,
+                    10,
+                    altura_poste
+                )
             )
 
+            pygame.draw.rect(
+                pantalla,
+                (110, 75, 35),
+                (
+                    fin[0] - 5,
+                    fin[1] - altura_poste,
+                    10,
+                    altura_poste
+                )
+            )
+
+            # =====================
+            # CABLE SUPERIOR
+            # =====================
+
+            cable = []
+
+            for px, py in puntos:
+
+                cable.append(
+                    (
+                        px,
+                        py - 65
+                    )
+                )
+
+            cable[0] = (
+                inicio[0],
+                inicio[1] - altura_poste
+            )
+
+            cable[-1] = (
+                fin[0],
+                fin[1] - altura_poste
+            )
+
+            pygame.draw.lines(
+                pantalla,
+                (80, 80, 80),
+                False,
+                cable,
+                3
+            )
+
+            # =====================
+            # TENSORES
+            # =====================
+
+            for i in range(
+                0,
+                len(puntos),
+                4
+            ):
+
+                pygame.draw.line(
+                    pantalla,
+                    (120, 120, 120),
+                    cable[i],
+                    puntos[i],
+                    2
+                )
 # ---------------- DEFORMACION PUENTE ----------------
 
 def deformacion_puente(x, auto_x):
@@ -417,17 +510,40 @@ def deformacion_puente(x, auto_x):
 
         if puente["inicio"] <= x <= puente["fin"]:
 
-            distancia = abs(x - auto_x)
+            if puente["inicio"] <= auto_x <= puente["fin"]:
 
-            if distancia < 140:
+                distancia = abs(x - auto_x)
 
-                return (
-                    1
-                    - distancia / 140
-                ) * 40
+                if distancia < 140:
+
+                    influencia_auto = (
+                        1 - distancia / 140
+                    )
+
+                    largo = (
+                        puente["fin"]
+                        - puente["inicio"]
+                    )
+
+                    posicion = (
+                        x - puente["inicio"]
+                    ) / largo
+
+                    # extremos totalmente fijos
+                    anclaje = math.sin(
+                        posicion * math.pi
+                    )
+
+                    # endurecer extremos
+                    anclaje = anclaje ** 1.5
+
+                    return (
+                        influencia_auto
+                        * anclaje
+                        * 25
+                    )
 
     return 0
-
 #-------- GROUND SIN DEFORMACION PARA PUENTE -----------
 
 def get_ground_sin_deformacion(x, terrain):

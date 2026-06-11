@@ -49,7 +49,6 @@ class Game:
             ROJO,
             AZUL_REY,
             ROSA,
-            AMARILLO,
             BLANCO,
             MORADO,
             NEGRO
@@ -59,7 +58,6 @@ class Game:
             "Rojo",
             "Azul Rey",
             "Rosa",
-            "Amarillo",
             "Blanco",
             "Morado",
             "Negro"

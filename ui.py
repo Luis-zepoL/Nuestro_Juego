@@ -114,7 +114,7 @@ def dibujar_menu(
 
     # Sombra del título
     titulo_sombra = fuente_grande.render(
-        "PROTOTIPO DE JUEGO",
+        "HILL CLIMB FAKE",
         True,
         NEGRO
     )
@@ -130,7 +130,7 @@ def dibujar_menu(
 
     # Título
     titulo = fuente_grande.render(
-        "PROTOTIPO DE JUEGO",
+        "HILL CLIMB FAKE",
         True,
         BLANCO
     )
@@ -307,7 +307,7 @@ def dibujar_menu(
         )
 
     ayuda = fuente_pequena.render(
-        "ENTER seleccionar | ARRIBA/ABAJO navegar",
+        "↑↓ para navegar",
         True,
         BLANCO
     )
