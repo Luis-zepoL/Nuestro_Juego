@@ -86,7 +86,11 @@ class Game:
 
         self.auto = Auto()
 
+        # Generamos monedas y gasolina
         self.coins = generar_monedas(
+            self.terrain
+        )
+        self.gasolinas = generar_gasolinas(
             self.terrain
         )
 
@@ -106,17 +110,6 @@ class Game:
         ]
 
         self.menu_anim = 0
-
-        self.vehiculos = [
-            "Auto",
-            "Moto"
-        ]
-
-        self.vehiculo_actual = 0
-
-        self.color_actual = 0
-
-        self.opcion_taller = 0
 
     # ---------------- EVENTOS ----------------
 
@@ -147,7 +140,6 @@ class Game:
                         if self.opcion_menu == 0:
 
                             self.auto.reset()
-
                             self.estado = JUGANDO
 
                         elif self.opcion_menu == 1:
@@ -182,13 +174,11 @@ class Game:
                         if self.opcion_game_over == 0:
 
                             self.auto.reset()
-
                             self.estado = JUGANDO
 
                         else:
 
                             self.auto.reset()
-
                             self.estado = MENU
                 
                 # Navegación del taller
@@ -265,10 +255,10 @@ class Game:
             import terreno
             terreno.AUTO_X_GLOBAL = self.auto.x
 
+            # --- Monedas ---
             recolectar_monedas(
                 self.auto,
-                self.coins,
-                self.terrain
+                self.coins
             )
 
             actualizar_monedas(
@@ -276,7 +266,20 @@ class Game:
                 self.auto,
                 self.terrain
             )
-            #tiempo de game over para mostrar mensaje antes de pasar a pantalla de game over
+            
+            # --- Gasolina ---
+            recolectar_gasolinas(
+                self.auto,
+                self.gasolinas
+            )
+
+            actualizar_gasolinas(
+                self.gasolinas,
+                self.auto,
+                self.terrain
+            )
+
+            # tiempo de game over para mostrar mensaje antes de pasar a pantalla de game over
             if self.auto.game_over:
                 self.game_over_timer = 0.5
                 self.estado = GAME_OVER_DELAY
@@ -301,22 +304,18 @@ class Game:
                 self.mapas,
                 self.mapa_actual
             )
-
             pygame.display.flip()
-
             return
     
         if self.estado == TALLER:
-            #Taller
+            # Taller
             dibujar_taller(
                 self.pantalla,
                 self.auto,
                 self.vehiculos[self.vehiculo_actual],
                 self.nombre_colores[self.color_actual]
             )
-
             pygame.display.flip()
-
             return
 
         # Fondo cielo
@@ -339,7 +338,6 @@ class Game:
         color_terreno = VERDE
 
         if self.mapas[self.mapa_actual] == "Desierto":
-
             color_terreno = (194, 178, 128)
 
         dibujar_terreno(
@@ -364,19 +362,30 @@ class Game:
             self.terrain
         )
 
-        # Monedas
+        # Monedas y Gasolina
         dibujar_monedas(
             self.pantalla,
             self.coins,
-            self.auto.cam_x,
-            self.terrain
+            self.auto.cam_x
+        )
+        
+        dibujar_gasolinas(
+            self.pantalla,
+            self.gasolinas,
+            self.auto.cam_x
         )
 
         # Auto
         self.auto.draw(self.pantalla)
 
-        # HUD
+        # HUD (Barras y texto base)
         dibujar_hud(
+            self.pantalla,
+            self.auto
+        )
+        
+        # Interfaz del contador de monedas
+        dibujar_ui_monedas(
             self.pantalla,
             self.auto
         )
@@ -390,16 +399,12 @@ class Game:
         # Menu / Selector / Game over
         if self.estado == MENU:
             dibujar_menu(
-            self.pantalla,
-            self.opcion_menu,
-            self.menu_anim,
-            self.vehiculos[
-                self.vehiculo_actual
-            ],
-            self.colores[
-                self.color_actual
-            ]
-        )
+                self.pantalla,
+                self.opcion_menu,
+                self.menu_anim,
+                self.vehiculos[self.vehiculo_actual],
+                self.colores[self.color_actual]
+            )
 
         elif self.estado == SELECCION_MAPA:
             dibujar_selector_mapa(
@@ -445,7 +450,6 @@ class Game:
             dt = self.clock.tick(FPS) / 16.67
 
             if dt > 2:
-
                 dt = 1
 
             self.eventos()
