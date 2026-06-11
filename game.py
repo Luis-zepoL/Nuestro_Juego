@@ -12,6 +12,7 @@ from ui import (
     dibujar_hud,
     dibujar_menu,
     dibujar_selector_mapa,
+    dibujar_taller,
     dibujar_game_over,
     dibujar_velocimetro
 )
@@ -37,6 +38,37 @@ class Game:
 
         self.opcion_menu = 0
 
+        self.opcion_taller = 0
+
+        self.vehiculos = [
+            "Auto",
+            "Moto"
+        ]
+
+        self.colores = [
+            ROJO,
+            AZUL_REY,
+            ROSA,
+            AMARILLO,
+            BLANCO,
+            MORADO,
+            NEGRO
+        ]
+
+        self.nombre_colores = [
+            "Rojo",
+            "Azul Rey",
+            "Rosa",
+            "Amarillo",
+            "Blanco",
+            "Morado",
+            "Negro"
+        ]
+
+        self.color_actual = 0
+
+        self.vehiculo_actual = 0
+
         self.mapas = [
             "Pradera",
             "Desierto"
@@ -52,6 +84,8 @@ class Game:
 
         generar_nubes()
 
+        generar_cactus()
+
         self.auto = Auto()
 
         self.coins = generar_monedas(
@@ -59,6 +93,7 @@ class Game:
         )
 
         self.running = True
+
         self.game_over_timer = 0
 
         self.opcion_game_over = 0
@@ -73,6 +108,17 @@ class Game:
         ]
 
         self.menu_anim = 0
+
+        self.vehiculos = [
+            "Auto",
+            "Moto"
+        ]
+
+        self.vehiculo_actual = 0
+
+        self.color_actual = 0
+
+        self.opcion_taller = 0
 
     # ---------------- EVENTOS ----------------
 
@@ -96,7 +142,7 @@ class Game:
                         self.opcion_menu += 1
 
                     # Asegurar que la opción esté en rango
-                    self.opcion_menu %= 3
+                    self.opcion_menu %= 4
 
                     if evento.key == pygame.K_RETURN:
 
@@ -111,6 +157,10 @@ class Game:
                             self.estado = SELECCION_MAPA
 
                         elif self.opcion_menu == 2:
+
+                            self.estado = TALLER
+
+                        elif self.opcion_menu == 3:
 
                             self.running = False
 
@@ -140,6 +190,41 @@ class Game:
                         else:
 
                             self.auto.reset()
+
+                            self.estado = MENU
+                
+                # Navegación del taller
+                elif self.estado == TALLER:
+
+                    if evento.key == pygame.K_UP:
+                        self.vehiculo_actual -= 1
+
+                    if evento.key == pygame.K_DOWN:
+                        self.vehiculo_actual += 1
+
+                    self.vehiculo_actual %= len(
+                        self.vehiculos
+                    )
+
+                    if evento.key == pygame.K_RIGHT:
+                        self.color_actual += 1
+
+                    if evento.key == pygame.K_LEFT:
+                        self.color_actual -= 1
+
+                    self.color_actual %= len(
+                        self.colores
+                    )
+
+                    self.auto.tipo = self.vehiculos[
+                        self.vehiculo_actual
+                    ]
+
+                    self.auto.color = self.colores[
+                        self.color_actual
+                    ]
+
+                    if evento.key == pygame.K_RETURN:
 
                             self.estado = MENU
 
@@ -210,6 +295,32 @@ class Game:
 
     def draw(self):
 
+        # Si estamos en el selector de mapa, solo dibujar eso
+        if self.estado == SELECCION_MAPA:
+
+            dibujar_selector_mapa(
+                self.pantalla,
+                self.mapas,
+                self.mapa_actual
+            )
+
+            pygame.display.flip()
+
+            return
+    
+        if self.estado == TALLER:
+            #Taller
+            dibujar_taller(
+                self.pantalla,
+                self.auto,
+                self.vehiculos[self.vehiculo_actual],
+                self.nombre_colores[self.color_actual]
+            )
+
+            pygame.display.flip()
+
+            return
+
         # Fondo cielo
         if self.estado == MENU:
             self.pantalla.fill((15, 20, 40))
@@ -227,11 +338,26 @@ class Game:
         )
 
         # Terreno
+        color_terreno = VERDE
+
+        if self.mapas[self.mapa_actual] == "Desierto":
+
+            color_terreno = (194, 178, 128)
+
         dibujar_terreno(
             self.pantalla,
             self.terrain,
-            self.auto.cam_x
+            self.auto.cam_x,
+            color_terreno
         )
+
+        # Cactus (solo en desierto)
+        if self.mapas[self.mapa_actual] == "Desierto":
+            dibujar_cactus(
+                self.pantalla,
+                self.auto.cam_x,
+                self.terrain
+            )
         
         # Puentes
         dibujar_puentes(
@@ -266,10 +392,16 @@ class Game:
         # Menu / Selector / Game over
         if self.estado == MENU:
             dibujar_menu(
-                self.pantalla,
-                self.opcion_menu,
-                self.menu_anim
-            )
+            self.pantalla,
+            self.opcion_menu,
+            self.menu_anim,
+            self.vehiculos[
+                self.vehiculo_actual
+            ],
+            self.colores[
+                self.color_actual
+            ]
+        )
 
         elif self.estado == SELECCION_MAPA:
             dibujar_selector_mapa(

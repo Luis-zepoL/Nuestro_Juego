@@ -8,9 +8,18 @@ from terreno import get_ground, get_slope
 class Auto:
 
     def __init__(self):
+
+        self.tipo = "Auto"
+        self.color = ROJO
         self.reset()
 
+        self.usar_sprites = False
+        self.sprite_auto = None
+        self.sprite_moto = None
+        self.reset()
+        
     # ---------------- RESET ----------------
+
     def reset(self):
         self.x = 300
         self.y = 200
@@ -148,20 +157,63 @@ class Auto:
 
     # ---------------- DIBUJAR ----------------
     def draw(self, pantalla):
+    
+        if self.tipo == "Moto":
 
+            self.draw_moto(
+                pantalla
+            )
+
+        else:
+
+            self.draw_auto(
+                pantalla
+            )
+
+    #---------------- DIBUJAR AUTO ----------------
+
+    def draw_auto(
+        self,
+        pantalla
+    ):    
         car_surface = pygame.Surface(
             (170, 90),
             pygame.SRCALPHA
         )
 
-        # ---------------- SOMBRA ----------------
+        # Si hay sprite, usar el sprite
+        if self.usar_sprites and self.sprite_auto:
+            sprite = pygame.transform.rotate(
+                self.sprite_auto,
+                math.degrees(self.rotacion)
+            )
+            rect = sprite.get_rect(
+                center=(
+                    self.x - self.cam_x,
+                    self.y
+                )
+            )
+            pantalla.blit(
+                sprite,
+                rect
+            )
+            return
+
+        # Si es moto, dibujar la moto
+        if self.tipo == "Moto":
+            self.draw_moto(
+                pantalla
+            )
+            return
+
+        # SOMBRA
         pygame.draw.ellipse(
             car_surface,
             (0, 0, 0, 70),
             (20, 58, 130, 22)
         )
 
-        # ---------------- SUSPENSION ----------------
+        # SUSPENSION
         pygame.draw.line(
             car_surface,
             GRIS,
@@ -178,22 +230,42 @@ class Auto:
             5
         )
 
-        # ---------------- CARROCERIA ----------------
+        # CARROCERIA
         pygame.draw.rect(
             car_surface,
-            ROJO,
-            (20, 20, 130, 35),
-            border_radius=14
+            self.color,
+            (15, 25, 140, 30),
+            border_radius=12
         )
 
-        pygame.draw.rect(
+        pygame.draw.polygon(
             car_surface,
-            (180, 40, 40),
-            (55, 5, 60, 25),
-            border_radius=10
+            self.color,
+            [
+                (40,25),
+                (75,5),
+                (110,5),
+                (140,25)
+            ]
         )
 
-        # ---------------- VENTANAS ----------------
+        # Detalles
+        pygame.draw.circle(
+            car_surface,
+            (255,220,180),
+            (90,5),
+            10
+        )
+
+        pygame.draw.line(
+            car_surface,
+            NEGRO,
+            (90,15),
+            (90,30),
+            3
+        )
+
+        # Ventana
         pygame.draw.rect(
             car_surface,
             (120, 200, 255),
@@ -208,7 +280,7 @@ class Auto:
             border_radius=4
         )
 
-        # ---------------- FAROS ----------------
+        # Faros
         pygame.draw.circle(
             car_surface,
             (255, 255, 180),
@@ -223,7 +295,7 @@ class Auto:
             5
         )
 
-        # ---------------- ESCAPE ----------------
+        # Escape
         pygame.draw.rect(
             car_surface,
             (90, 90, 90),
@@ -231,7 +303,7 @@ class Auto:
             border_radius=2
         )
 
-        # ---------------- RUEDAS ----------------
+        #RUEDAS
         for rx in (45, 125):
 
             pygame.draw.circle(
@@ -280,7 +352,7 @@ class Auto:
                 3
             )
 
-        # ---------------- ROTACION FINAL PARA PINTAR ----------------
+        # rotar y dibujar el auto
         carro_rotado = pygame.transform.rotate(
             car_surface,
             math.degrees(self.rotacion)
@@ -291,3 +363,145 @@ class Auto:
         )
 
         pantalla.blit(carro_rotado, rect)
+
+    #---------------- DIBUJAR MOTO ----------------
+
+    def draw_moto(self, pantalla):
+
+        # Si hay sprite, usar el sprite
+        if self.usar_sprites and self.sprite_moto:
+            sprite = pygame.transform.rotate(
+                self.sprite_moto,
+                math.degrees(self.rotacion)
+            )
+            rect = sprite.get_rect(
+                center=(
+                    self.x - self.cam_x,
+                    self.y
+                )
+            )
+            pantalla.blit(
+                sprite,
+                rect
+            )
+            return
+        
+        # Dibujar la moto
+        moto = pygame.Surface(
+            (140,80),
+            pygame.SRCALPHA
+        )
+
+        # Sombra de la moto
+        pygame.draw.circle(
+            moto,
+            NEGRO,
+            (30,55),
+            18
+        )
+        
+        # Rueda de la moto
+        pygame.draw.circle(
+            moto,
+            NEGRO,
+            (110,55),
+            18
+        )
+        
+        # Marco de la moto
+        pygame.draw.line(
+            moto,
+            self.color,
+            (30,55),
+            (70,30),
+            5
+        )
+
+        # Rueda de la moto
+        pygame.draw.line(
+            moto,
+            self.color,
+            (70,30),
+            (110,55),
+            5
+        )
+
+        # Manillar de la moto
+        pygame.draw.line(
+            moto,
+            self.color,
+            (70,30),
+            (90,15),
+            5
+        )
+
+        # Parte superior del manillar
+        pygame.draw.line(
+            moto,
+            self.color,
+            (90,15),
+            (105,15),
+            3
+        )
+
+        # Cabeza de la moto
+        pygame.draw.circle(
+            moto,
+            (255,220,180),
+            (65,5), 
+            10
+        )
+        
+        # Cuerpo de la moto
+        pygame.draw.line(
+            moto,
+            NEGRO,
+            (65,15),
+            (65,35),
+            3
+        )
+
+        # Rotar y dibujar la moto
+        moto_rotada = pygame.transform.rotate(
+            moto,
+            math.degrees(self.rotacion)
+        )
+
+        # Obtener el rectángulo de la moto rotada
+        rect = moto_rotada.get_rect(
+            center=(
+                self.x - self.cam_x,
+                self.y
+            )
+        )
+
+        #
+        pantalla.blit(
+            moto_rotada,
+            rect
+        )
+
+    
+    def draw_preview(
+        self,
+        pantalla,
+        x,
+        y
+    ):
+
+        x_original = self.x
+        y_original = self.y
+        cam_original = self.cam_x
+        rot_original = self.rotacion
+
+        self.x = x
+        self.y = y
+        self.cam_x = 0
+        self.rotacion = 0
+
+        self.draw(pantalla)
+
+        self.x = x_original
+        self.y = y_original
+        self.cam_x = cam_original
+        self.rotacion = rot_original

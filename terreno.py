@@ -62,10 +62,11 @@ def generar_puentes():
         x += 12000
 
 SEMILLA = 0
-#random.seed(SEMILLA)
+
 PUNTOS_CONTROL = []
 PUENTES = []
 
+CACTUS = []
 NUBES = []
 
 def smoothstep(t):
@@ -107,6 +108,88 @@ def generar_nubes():
                 50 + (i * 17) % 40
             )
         )
+
+#---------------- GENERAR CACTUS ----------------
+
+def generar_cactus():
+
+    global CACTUS
+
+    CACTUS = []
+
+    x = 1000
+
+    while x < 100000:
+
+        sobre_puente = False
+
+        for puente in PUENTES:
+
+            if puente["inicio"] - 200 <= x <= puente["fin"] + 200:
+
+                sobre_puente = True
+                break
+
+        if not sobre_puente:
+
+            CACTUS.append(x)
+
+        x += random.randint(
+            500,
+            1500
+        )
+
+#---------------- DIBUJAR CACTUS ----------------
+
+def dibujar_cactus(
+    pantalla,
+    cam_x,
+    terrain
+):
+
+    for x in CACTUS:
+
+        px = x - cam_x
+
+        if -100 <= px <= ANCHO + 100:
+
+            suelo = get_ground(
+                x,
+                terrain
+            )
+
+            pygame.draw.rect(
+                pantalla,
+                (20,120,20),
+                (
+                    px-8,
+                    suelo-80,
+                    16,
+                    80
+                )
+            )
+
+            pygame.draw.rect(
+                pantalla,
+                (20,120,20),
+                (
+                    px-25,
+                    suelo-60,
+                    15,
+                    40
+                )
+            )
+
+            pygame.draw.rect(
+                pantalla,
+                (20,120,20),
+                (
+                    px+10,
+                    suelo-55,
+                    15,
+                    35
+                )
+            )
 
 # ---------------- ALTURA ----------------
 
@@ -269,8 +352,46 @@ def dibujar_puentes(
                 3
             )
 
-            inicio = puntos[0]
-            fin = puntos[-1]
+            # Dibujar plataformas en los extremos
+            inicio = (
+                puente["inicio"] - cam_x,
+                get_ground_sin_deformacion(
+                    puente["inicio"],
+                    terrain
+                )
+            )
+
+            fin = (
+                puente["fin"] - cam_x,
+                get_ground_sin_deformacion(
+                    puente["fin"],
+                    terrain
+                )
+            )
+
+            # Plataforma izquierda
+            pygame.draw.polygon(
+                pantalla,
+                (100, 70, 35),
+                [
+                    inicio,
+                    (inicio[0] - 60, inicio[1]),
+                    (inicio[0] - 60, inicio[1] + 40),
+                    (inicio[0], inicio[1] + 20)
+                ]
+            )
+
+            # Plataforma derecha
+            pygame.draw.polygon(
+                pantalla,
+                (100, 70, 35),
+                [
+                    fin,
+                    (fin[0] + 60, fin[1]),
+                    (fin[0] + 60, fin[1] + 40),
+                    (fin[0], fin[1] + 20)
+                ]
+            )
 
             pygame.draw.line(
                 pantalla,
@@ -307,6 +428,58 @@ def deformacion_puente(x, auto_x):
 
     return 0
 
+#-------- GROUND SIN DEFORMACION PARA PUENTE -----------
+
+def get_ground_sin_deformacion(x, terrain):
+
+    if x <= terrain[0][0]:
+        return terrain[0][1]
+
+    if x >= terrain[-1][0]:
+        return terrain[-1][1]
+
+    for i in range(len(terrain)-1):
+
+        x1, y1 = terrain[i]
+        x2, y2 = terrain[i+1]
+
+        if x1 <= x <= x2:
+
+            t = (x - x1)/(x2 - x1)
+
+            altura = y1*(1-t) + y2*t
+
+            for puente in PUENTES:
+
+                if puente["inicio"] <= x <= puente["fin"]:
+
+                    centro = (
+                        puente["inicio"]
+                        + puente["fin"]
+                    ) / 2
+
+                    largo = (
+                        puente["fin"]
+                        - puente["inicio"]
+                    )
+
+                    distancia = abs(x - centro)
+
+                    factor = math.cos(
+                        (distancia/(largo/2))
+                        * math.pi/2
+                    )
+
+                    factor = max(0, factor)
+
+                    altura += (
+                        factor**2
+                    ) * puente["profundidad"]
+
+            return altura
+
+    return terrain[-1][1]
+
 # ---------------- PENDIENTE ----------------
 
 def get_slope(x, terrain):
@@ -318,7 +491,7 @@ def get_slope(x, terrain):
 
 # ---------------- DIBUJO ----------------
 
-def dibujar_terreno(pantalla, terrain, cam_x):
+def dibujar_terreno(pantalla, terrain, cam_x, color_terreno):
 
     puntos = []
     segmentos = []
@@ -381,7 +554,7 @@ def dibujar_terreno(pantalla, terrain, cam_x):
 
         pygame.draw.polygon(
             pantalla,
-            VERDE,
+            color_terreno,
             poligono
         )
 

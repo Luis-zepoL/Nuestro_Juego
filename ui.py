@@ -55,7 +55,9 @@ def dibujar_hud(pantalla, auto):
 def dibujar_menu(
     pantalla,
     opcion,
-    animacion
+    animacion,
+    vehiculo,
+    color_vehiculo
 ):
 
     # Fondo degradado
@@ -89,16 +91,16 @@ def dibujar_menu(
          )
     )
 
-    pygame.draw.circle(
-        pantalla,
-        (
-            brillo,
-            brillo,
-            brillo
-        ),
-        (x, y),
-        2
-    )
+        pygame.draw.circle(
+            pantalla,
+            (
+                brillo,
+                brillo,
+                brillo
+            ),
+            (x, y),
+            2
+        )
 
     # Oscurecer
     sombra = pygame.Surface(
@@ -142,43 +144,94 @@ def dibujar_menu(
         )
     )
 
-
-
+    # Animación del vehículo
     auto_y = 180 + math.sin(
         animacion * 0.08
     ) * 10
 
-    pygame.draw.rect(
-        pantalla,
-        ROJO,
-        (
-            ANCHO // 2 - 70,
-            auto_y,
-            140,
-            40
-        ),
-        border_radius=10
-    )
+    if vehiculo == "Auto":
 
-    pygame.draw.circle(
-        pantalla,
-        NEGRO,
-        (
-            ANCHO // 2 - 40,
-            int(auto_y + 45)
-        ),
-        18
-    )
+        pygame.draw.rect(
+            pantalla,
+            color_vehiculo,
+            (
+                ANCHO // 2 - 70,
+                auto_y,
+                140,
+                40
+            ),
+            border_radius=10
+        )
 
-    pygame.draw.circle(
-        pantalla,
-        NEGRO,
-        (
-            ANCHO // 2 + 40,
-            int(auto_y + 45)
-        ),
-        18
-    )
+        pygame.draw.circle(
+            pantalla,
+            NEGRO,
+            (
+                ANCHO // 2 - 40,
+                int(auto_y + 45)
+            ),
+            18
+        )
+
+        pygame.draw.circle(
+            pantalla,
+            NEGRO,
+            (
+                ANCHO // 2 + 40,
+                int(auto_y + 45)
+            ),
+            18
+        )
+
+    else:
+
+        pygame.draw.circle(
+            pantalla,
+            NEGRO,
+            (
+                ANCHO // 2 - 40,
+                int(auto_y + 35)
+            ),
+            18
+        )
+
+        pygame.draw.circle(
+            pantalla,
+            NEGRO,
+            (
+                ANCHO // 2 + 40,
+                int(auto_y + 35)
+            ),
+            18
+        )
+
+        pygame.draw.line(
+            pantalla,
+            color_vehiculo,
+            (
+                ANCHO // 2 - 20,
+                int(auto_y)
+            ),
+            (
+                ANCHO // 2 + 20,
+                int(auto_y)
+            ),
+            8
+        )
+
+        pygame.draw.line(
+            pantalla,
+            color_vehiculo,
+            (
+                ANCHO // 2,
+                int(auto_y)
+            ),
+            (
+                ANCHO // 2 + 30,
+                int(auto_y - 20)
+            ),
+            5
+        )
 
     # Caja principal
     pygame.draw.rect(
@@ -192,7 +245,7 @@ def dibujar_menu(
             ANCHO // 2 - 220,
             230,
             440,
-            240
+            310
         ),
         border_radius=20
     )
@@ -200,6 +253,7 @@ def dibujar_menu(
     opciones = [
         "Jugar",
         "Seleccionar mapa",
+        "Taller",
         "Salir"
     ]
 
@@ -266,7 +320,9 @@ def dibujar_menu(
             520
         )
     )
+
 # ------------ selector de mapa ----------------
+
 def dibujar_selector_mapa(
     pantalla,
     mapas,
@@ -447,6 +503,89 @@ def dibujar_selector_mapa(
                 620
             )
         )
+
+#---------------- TALLER ----------------
+
+def dibujar_taller(
+    pantalla,
+    auto,
+    vehiculo,
+    color_nombre
+):
+
+    pantalla.fill(
+        (25,25,35)
+    )
+
+    titulo = fuente_grande.render(
+        "TALLER",
+        True,
+        BLANCO
+    )
+
+    pantalla.blit(
+        titulo,
+        (
+            ANCHO//2
+            - titulo.get_width()//2,
+            40
+        )
+    )
+
+    pygame.draw.rect(
+        pantalla,
+        (45,45,60),
+        (
+            250,
+            120,
+            780,
+            450
+        ),
+        border_radius=20
+    )
+
+    auto.draw_preview(
+        pantalla,
+        ANCHO//2,
+        350
+    )
+
+    txt1 = fuente.render(
+        f"Vehiculo: {vehiculo}",
+        True,
+        BLANCO
+    )
+
+    txt2 = fuente.render(
+        f"Color: {color_nombre}",
+        True,
+        BLANCO
+    )
+
+    pantalla.blit(
+        txt1,
+        (430,470)
+    )
+
+    pantalla.blit(
+        txt2,
+        (430,520)
+    )
+
+    ayuda = fuente_pequena.render(
+        "↑↓ Vehiculo | ←→ Color | ENTER Volver",
+        True,
+        AMARILLO
+    )
+
+    pantalla.blit(
+        ayuda,
+        (
+            ANCHO//2
+            - ayuda.get_width()//2,
+            620
+        )
+    )
 
 # ---------------- GAME OVER ----------------
 
@@ -680,3 +819,4 @@ def dibujar_velocimetro(pantalla, velocidad):
         texto_vel,
         (cx - 50, cy + 45)
     )
+
