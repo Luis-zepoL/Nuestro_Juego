@@ -13,6 +13,8 @@ DISTANCIA_ELIMINAR = 1000
 
 altura_base = 520
 
+AUTO_X_GLOBAL = 0
+
 def generar_control_points():
 
     global PUNTOS_CONTROL
@@ -37,9 +39,32 @@ def generar_control_points():
             1800
         )
 
+def generar_puentes():
+
+    global PUENTES
+
+    PUENTES = []
+
+    x = 6000
+
+    while x < 100000:
+
+        largo = 700
+
+        PUENTES.append(
+            {
+                "inicio": x,
+                "fin": x + largo,
+                "profundidad": 80
+            }
+        )
+
+        x += 12000
+
 SEMILLA = 0
 #random.seed(SEMILLA)
 PUNTOS_CONTROL = []
+PUENTES = []
 
 NUBES = []
 
@@ -157,10 +182,130 @@ def get_ground(x, terrain):
 
             t = (x - x1) / (x2 - x1)
 
-            return y1 * (1 - t) + y2 * t
+            altura = y1 * (1 - t) + y2 * t
 
+            for puente in PUENTES:
+
+                if puente["inicio"] <= x <= puente["fin"]:
+
+                    centro = (
+                        puente["inicio"]
+                        + puente["fin"]
+                    ) / 2
+
+                    largo = (
+                        puente["fin"]
+                        - puente["inicio"]
+                    )
+
+                    distancia = abs(x - centro)
+
+                    t = distancia / (largo / 2)
+
+                    factor = math.cos(
+                        t * math.pi / 2
+                    )
+
+                    factor = max(0, factor)
+
+                    altura += (
+                        factor ** 2
+                    ) * puente["profundidad"]
+
+                    altura += deformacion_puente(
+                        x,
+                        AUTO_X_GLOBAL
+                    )
+
+            return altura
     # Seguridad extra
     return terrain[-1][1]
+
+# ---------------- DIBUJAR PUENTES ----------------
+
+def dibujar_puentes(
+    pantalla,
+    cam_x,
+    terrain
+):
+
+    for puente in PUENTES:
+
+        puntos = []
+
+        x = puente["inicio"]
+
+        while x <= puente["fin"]:
+
+            y = get_ground(
+                x,
+                terrain
+            )
+
+            puntos.append(
+                (
+                    x - cam_x,
+                    y
+                )
+            )
+
+            x += 10
+
+        if len(puntos) > 1:
+
+            pygame.draw.lines(
+                pantalla,
+                (120, 75, 35),
+                False,
+                puntos,
+                12
+            )
+
+            pygame.draw.lines(
+                pantalla,
+                (170, 120, 70),
+                False,
+                puntos,
+                3
+            )
+
+            inicio = puntos[0]
+            fin = puntos[-1]
+
+            pygame.draw.line(
+                pantalla,
+                (90, 60, 30),
+                inicio,
+                (inicio[0], inicio[1] + 120),
+                6
+            )
+
+            pygame.draw.line(
+                pantalla,
+                (90, 60, 30),
+                fin,
+                (fin[0], fin[1] + 120),
+                6
+            )
+
+# ---------------- DEFORMACION PUENTE ----------------
+
+def deformacion_puente(x, auto_x):
+
+    for puente in PUENTES:
+
+        if puente["inicio"] <= x <= puente["fin"]:
+
+            distancia = abs(x - auto_x)
+
+            if distancia < 140:
+
+                return (
+                    1
+                    - distancia / 140
+                ) * 40
+
+    return 0
 
 # ---------------- PENDIENTE ----------------
 
@@ -176,28 +321,69 @@ def get_slope(x, terrain):
 def dibujar_terreno(pantalla, terrain, cam_x):
 
     puntos = []
+    segmentos = []
+    segmento_actual = []
 
     for x, y in terrain:
+
+        dentro_puente = False
+
+        for puente in PUENTES:
+
+            if puente["inicio"] <= x <= puente["fin"]:
+
+                dentro_puente = True
+                break
 
         pantalla_x = x - cam_x
 
         if -200 <= pantalla_x <= ANCHO + 200:
 
-            puntos.append((pantalla_x, y))
+            if dentro_puente:
 
-    # Seguridad
-    if len(puntos) < 2:
-        return
+                if len(segmento_actual) > 1:
 
-    # Cerrar polígono correctamente
-    puntos.append((puntos[-1][0], ALTO))
-    puntos.append((puntos[0][0], ALTO))
+                    segmentos.append(
+                        segmento_actual
+                    )
 
-    pygame.draw.polygon(
-        pantalla,
-        VERDE,
-        puntos
-    )
+                segmento_actual = []
+
+            else:
+
+                segmento_actual.append(
+                    (pantalla_x, y)
+                )
+
+    if len(segmento_actual) > 1:
+
+        segmentos.append(
+            segmento_actual
+        )
+
+    for segmento in segmentos:
+
+        poligono = segmento[:]
+
+        poligono.append(
+            (
+                segmento[-1][0],
+                ALTO
+            )
+        )
+
+        poligono.append(
+            (
+                segmento[0][0],
+                ALTO
+            )
+        )
+
+        pygame.draw.polygon(
+            pantalla,
+            VERDE,
+            poligono
+        )
 
 # ---------------- DIBUJAR NUBES ----------------
 

@@ -7,6 +7,7 @@ from auto import Auto
 from terreno import *
 from monedas import *
 
+import terreno
 from ui import (
     dibujar_hud,
     dibujar_menu,
@@ -44,6 +45,8 @@ class Game:
         self.mapa_actual = 0
 
         generar_control_points()
+
+        generar_puentes()
 
         self.terrain = generar_terreno()
 
@@ -176,6 +179,9 @@ class Game:
                 self.terrain
             )
 
+            import terreno
+            terreno.AUTO_X_GLOBAL = self.auto.x
+
             recolectar_monedas(
                 self.auto,
                 self.coins,
@@ -225,6 +231,13 @@ class Game:
             self.pantalla,
             self.terrain,
             self.auto.cam_x
+        )
+        
+        # Puentes
+        dibujar_puentes(
+            self.pantalla,
+            self.auto.cam_x,
+            self.terrain
         )
 
         # Monedas
