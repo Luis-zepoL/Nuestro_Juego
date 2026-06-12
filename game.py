@@ -17,6 +17,8 @@ from ui import (
     dibujar_velocimetro
 )
 
+from Datos import guardar_record, cargar_record
+
 
 class Game:
 
@@ -108,8 +110,17 @@ class Game:
             "El coche no opina igual",
             "Eso dolio mas de lo esperado"
         ]
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> 61e2094063f33de995190097959828e9f4d86471
         self.menu_anim = 0
+
+        # --------------- Guardado ----------------
+        records = cargar_record()
+        self.record_monedas = records["monedas"]
+        self.record_distancia = records["distancia"]
 
     # ---------------- EVENTOS ----------------
 
@@ -172,6 +183,7 @@ class Game:
                     elif evento.key == pygame.K_RETURN:
 
                         if self.opcion_game_over == 0:
+<<<<<<< HEAD
 
                            self.auto = self.crear_vehiculo_actual()
                            self.estado = JUGANDO
@@ -187,6 +199,23 @@ class Game:
                     if evento.key == pygame.K_UP:
                         self.vehiculo_actual -= 1
 
+=======
+
+                            self.auto.reset()
+                            self.estado = JUGANDO
+
+                        else:
+
+                            self.auto.reset()
+                            self.estado = MENU
+                
+                # Navegación del taller
+                elif self.estado == TALLER:
+
+                    if evento.key == pygame.K_UP:
+                        self.vehiculo_actual -= 1
+
+>>>>>>> 61e2094063f33de995190097959828e9f4d86471
                     if evento.key == pygame.K_DOWN:
                         self.vehiculo_actual += 1
 
@@ -235,12 +264,17 @@ class Game:
     # ---------------- UPDATE ----------------
 
     def update(self, dt):
-
         teclas = pygame.key.get_pressed()
         self.menu_anim += dt
 
         if self.estado == JUGANDO:
+            actualizar_terreno(self.terrain, self.auto.x)
+            self.auto.update(dt, teclas, self.terrain)
+            
+            import terreno
+            terreno.AUTO_X_GLOBAL = self.auto.x
 
+<<<<<<< HEAD
             actualizar_terreno(
                 self.terrain,
                 self.auto.x
@@ -281,16 +315,41 @@ class Game:
 
             # tiempo de game over para mostrar mensaje antes de pasar a pantalla de game over
             if self.auto.game_over:
+=======
+            # --- Monedas ---
+            recolectar_monedas(self.auto, self.coins)
+            actualizar_monedas(self.coins, self.auto, self.terrain)
+            
+            # --- Gasolina ---
+            recolectar_gasolinas(self.auto, self.gasolinas)
+            actualizar_gasolinas(self.gasolinas, self.auto, self.terrain)
+            
+            # --- Game Over y Guardado ---
+            if self.auto.game_over:
+                if self.auto.monedas > self.record_monedas: 
+                    self.record_monedas = self.auto.monedas
+                if self.auto.x > self.record_distancia: 
+                    self.record_distancia = int(self.auto.x)
+                
+                guardar_record(self.record_monedas, self.record_distancia)
+                
+>>>>>>> 61e2094063f33de995190097959828e9f4d86471
                 self.game_over_timer = 0.5
                 self.estado = GAME_OVER_DELAY
         
         elif self.estado == GAME_OVER_DELAY:
+<<<<<<< HEAD
 
             self.game_over_timer -= dt / FPS
 
             if self.game_over_timer <= 0:
 
+=======
+            self.game_over_timer -= dt / FPS
+            if self.game_over_timer <= 0:
+>>>>>>> 61e2094063f33de995190097959828e9f4d86471
                 self.estado = GAME_OVER
+
 
     # ---------------- DIBUJO ----------------
 
@@ -428,14 +487,22 @@ class Game:
             )
 
         elif self.estado == GAME_OVER:
+            # ---> AQUÍ ESTÁ LA CORRECCIÓN DE LOS ARGUMENTOS <---
             dibujar_game_over(
                 self.pantalla,
                 self.auto,
                 self.opcion_game_over,
                 self.mensajes_game_over[
+<<<<<<< HEAD
                     int(self.auto.x)
                     % len(self.mensajes_game_over)
                 ]
+=======
+                    int(self.auto.x) % len(self.mensajes_game_over)
+                ],
+                self.record_distancia,
+                self.record_monedas
+>>>>>>> 61e2094063f33de995190097959828e9f4d86471
             )
 
         # Actualizar pantalla
@@ -457,5 +524,5 @@ class Game:
             self.update(dt)
 
             self.draw()
-
+        
         pygame.quit()

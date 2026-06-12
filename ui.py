@@ -55,7 +55,9 @@ def dibujar_hud(pantalla, auto):
 def dibujar_menu(
     pantalla,
     opcion,
-    animacion
+    animacion,
+    vehiculo,
+    color_vehiculo
 ):
 
     # Fondo degradado
@@ -75,12 +77,9 @@ def dibujar_menu(
         )
 
 
-
-
     for i in range(60):
 
         x = (i * 137) % ANCHO
-
         y = (i * 91) % ALTO
 
         brillo = 180 + int(
@@ -89,16 +88,16 @@ def dibujar_menu(
          )
     )
 
-    pygame.draw.circle(
-        pantalla,
-        (
-            brillo,
-            brillo,
-            brillo
-        ),
-        (x, y),
-        2
-    )
+        pygame.draw.circle(
+            pantalla,
+            (
+                brillo,
+                brillo,
+                brillo
+            ),
+            (x, y),
+            2
+        )
 
     # Oscurecer
     sombra = pygame.Surface(
@@ -112,7 +111,7 @@ def dibujar_menu(
 
     # Sombra del título
     titulo_sombra = fuente_grande.render(
-        "PROTOTIPO DE JUEGO",
+        "HILL CLIMB FAKE",
         True,
         NEGRO
     )
@@ -128,7 +127,7 @@ def dibujar_menu(
 
     # Título
     titulo = fuente_grande.render(
-        "PROTOTIPO DE JUEGO",
+        "HILL CLIMB FAKE",
         True,
         BLANCO
     )
@@ -142,43 +141,94 @@ def dibujar_menu(
         )
     )
 
-
-
+    # Animación del vehículo
     auto_y = 180 + math.sin(
         animacion * 0.08
     ) * 10
 
-    pygame.draw.rect(
-        pantalla,
-        ROJO,
-        (
-            ANCHO // 2 - 70,
-            auto_y,
-            140,
-            40
-        ),
-        border_radius=10
-    )
+    if vehiculo == "Auto":
 
-    pygame.draw.circle(
-        pantalla,
-        NEGRO,
-        (
-            ANCHO // 2 - 40,
-            int(auto_y + 45)
-        ),
-        18
-    )
+        pygame.draw.rect(
+            pantalla,
+            color_vehiculo,
+            (
+                ANCHO // 2 - 70,
+                auto_y,
+                140,
+                40
+            ),
+            border_radius=10
+        )
 
-    pygame.draw.circle(
-        pantalla,
-        NEGRO,
-        (
-            ANCHO // 2 + 40,
-            int(auto_y + 45)
-        ),
-        18
-    )
+        pygame.draw.circle(
+            pantalla,
+            NEGRO,
+            (
+                ANCHO // 2 - 40,
+                int(auto_y + 45)
+            ),
+            18
+        )
+
+        pygame.draw.circle(
+            pantalla,
+            NEGRO,
+            (
+                ANCHO // 2 + 40,
+                int(auto_y + 45)
+            ),
+            18
+        )
+
+    else:
+
+        pygame.draw.circle(
+            pantalla,
+            NEGRO,
+            (
+                ANCHO // 2 - 40,
+                int(auto_y + 35)
+            ),
+            18
+        )
+
+        pygame.draw.circle(
+            pantalla,
+            NEGRO,
+            (
+                ANCHO // 2 + 40,
+                int(auto_y + 35)
+            ),
+            18
+        )
+
+        pygame.draw.line(
+            pantalla,
+            color_vehiculo,
+            (
+                ANCHO // 2 - 20,
+                int(auto_y)
+            ),
+            (
+                ANCHO // 2 + 20,
+                int(auto_y)
+            ),
+            8
+        )
+
+        pygame.draw.line(
+            pantalla,
+            color_vehiculo,
+            (
+                ANCHO // 2,
+                int(auto_y)
+            ),
+            (
+                ANCHO // 2 + 30,
+                int(auto_y - 20)
+            ),
+            5
+        )
 
     # Caja principal
     pygame.draw.rect(
@@ -192,7 +242,7 @@ def dibujar_menu(
             ANCHO // 2 - 220,
             230,
             440,
-            240
+            310
         ),
         border_radius=20
     )
@@ -200,6 +250,7 @@ def dibujar_menu(
     opciones = [
         "Jugar",
         "Seleccionar mapa",
+        "Taller",
         "Salir"
     ]
 
@@ -253,7 +304,7 @@ def dibujar_menu(
         )
 
     ayuda = fuente_pequena.render(
-        "ENTER seleccionar | ARRIBA/ABAJO navegar",
+        "↑↓ para navegar",
         True,
         BLANCO
     )
@@ -266,7 +317,9 @@ def dibujar_menu(
             520
         )
     )
+
 # ------------ selector de mapa ----------------
+
 def dibujar_selector_mapa(
     pantalla,
     mapas,
@@ -448,47 +501,245 @@ def dibujar_selector_mapa(
             )
         )
 
-# ---------------- GAME OVER ----------------
+#---------------- TALLER ----------------
 
-def dibujar_game_over(pantalla, auto):
+def dibujar_taller(
+    pantalla,
+    auto,
+    vehiculo,
+    color_nombre
+):
 
-    s = pygame.Surface((ANCHO, ALTO), pygame.SRCALPHA)
-    s.fill((0, 0, 0, 210))
-
-    pantalla.blit(s, (0, 0))
-
-    texto = fuente_grande.render(
-        "GAME OVER",
-        True,
-        ROJO
+    pantalla.fill(
+        (25,25,35)
     )
 
-    pantalla.blit(
-        texto,
-        (ANCHO // 2 - texto.get_width() // 2, 180)
-    )
-
-    score = fuente.render(
-        f"Distancia: {int(auto.x / 10)} m",
+    titulo = fuente_grande.render(
+        "TALLER",
         True,
         BLANCO
     )
 
     pantalla.blit(
-        score,
-        (ANCHO // 2 - score.get_width() // 2, 300)
+        titulo,
+        (
+            ANCHO//2
+            - titulo.get_width()//2,
+            40
+        )
     )
 
-    reiniciar = fuente.render(
-        "Presiona R para reiniciar",
+    pygame.draw.rect(
+        pantalla,
+        (45,45,60),
+        (
+            250,
+            120,
+            780,
+            450
+        ),
+        border_radius=20
+    )
+
+    auto.draw_preview(
+        pantalla,
+        ANCHO//2,
+        350
+    )
+
+    txt1 = fuente.render(
+        f"Vehiculo: {vehiculo}",
+        True,
+        BLANCO
+    )
+
+    txt2 = fuente.render(
+        f"Color: {color_nombre}",
+        True,
+        BLANCO
+    )
+
+    pantalla.blit(
+        txt1,
+        (430,470)
+    )
+
+    pantalla.blit(
+        txt2,
+        (430,520)
+    )
+
+    ayuda = fuente_pequena.render(
+        "↑↓ Vehiculo | ←→ Color | ENTER Volver",
         True,
         AMARILLO
     )
 
     pantalla.blit(
-        reiniciar,
-        (ANCHO // 2 - reiniciar.get_width() // 2, 420)
+        ayuda,
+        (
+            ANCHO//2
+            - ayuda.get_width()//2,
+            620
+        )
     )
+
+# ---------------- GAME OVER ----------------
+
+def dibujar_game_over(
+    pantalla,
+    auto,
+    opcion,
+    mensaje,
+    record_dist, 
+    record_mon
+):
+
+    sombra = pygame.Surface(
+        (ANCHO, ALTO),
+        pygame.SRCALPHA
+    )
+
+    sombra.fill((0, 0, 0, 220))
+
+    pantalla.blit(
+        sombra,
+        (0, 0)
+    )
+
+    pygame.draw.rect(
+        pantalla,
+        (30, 30, 45),
+        (
+            ANCHO // 2 - 280,
+            110,
+            560,
+            440
+        ),
+        border_radius=20
+    )
+
+    pygame.draw.rect(
+        pantalla,
+        ROJO,
+        (
+            ANCHO // 2 - 280,
+            110,
+            560,
+            440
+        ),
+        4,
+        border_radius=20
+    )
+
+    # --- TÍTULO (MENSAJE) ---
+    titulo = fuente_grande.render(
+        mensaje,
+        True,
+        BLANCO
+    )
+
+    pantalla.blit(
+        titulo,
+        (
+            ANCHO // 2 - titulo.get_width() // 2,
+            140
+        )
+    )
+
+    # --- PUNTUACIÓN DE LA PARTIDA ACTUAL ---
+    score_dist = fuente.render(
+        f"Distancia: {int(auto.x/10)} m",
+        True,
+        BLANCO
+    )
+    pantalla.blit(
+        score_dist,
+        (
+            ANCHO // 2 - score_dist.get_width() // 2,
+            210
+        )
+    )
+
+    score_monedas = fuente.render(
+        f"Monedas: {auto.monedas}",
+        True,
+        AMARILLO
+    )
+    pantalla.blit(
+        score_monedas,
+        (
+            ANCHO // 2 - score_monedas.get_width() // 2,
+            250
+        )
+    )
+
+    # --- RÉCORDS HISTÓRICOS ---
+    txt_rec_dist = fuente_pequena.render(
+        f"Mejor Distancia: {record_dist} m",
+        True,
+        (200, 200, 200)
+    )
+    pantalla.blit(
+        txt_rec_dist,
+        (
+            ANCHO // 2 - txt_rec_dist.get_width() // 2,
+            310
+        )
+    )
+
+    txt_rec_mon = fuente_pequena.render(
+        f"Récord Monedas: {record_mon}",
+        True,
+        (200, 200, 200)
+    )
+    pantalla.blit(
+        txt_rec_mon,
+        (
+            ANCHO // 2 - txt_rec_mon.get_width() // 2,
+            340
+        )
+    )
+
+    # --- BOTONES ---
+    opciones = [
+        "Reiniciar",
+        "Volver al menu"
+    ]
+
+    for i, texto in enumerate(opciones):
+
+        color = BLANCO
+
+        if i == opcion:
+
+            pygame.draw.rect(
+                pantalla,
+                (70, 120, 255),
+                (
+                    ANCHO // 2 - 180,
+                    380 + i * 70,
+                    360,
+                    50
+                ),
+                border_radius=10
+            )
+
+            color = AMARILLO
+
+        render = fuente.render(
+            texto,
+            True,
+            color
+        )
+
+        pantalla.blit(
+            render,
+            (
+                ANCHO // 2 - render.get_width() // 2,
+                390 + i * 70
+            )
+        )
 
 # ---------------- VELOCIMETRO ----------------
 
