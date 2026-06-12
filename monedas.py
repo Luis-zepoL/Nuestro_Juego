@@ -63,13 +63,29 @@ def recolectar_gasolinas(auto, gasolinas):
 
 def dibujar_monedas(pantalla, coins, cam_x):
     for mx, my in coins:
-        if -50 <= mx - cam_x <= ANCHO + 50:
-            pygame.draw.circle(pantalla, AMARILLO, (int(mx - cam_x), int(my)), 10)
+        pantalla_x = mx - cam_x
+        if -50 <= pantalla_x <= ANCHO + 50:
+            pygame.draw.circle(pantalla, (180, 140, 0), (int(pantalla_x), int(my)), 12)
+            
+            pygame.draw.circle(pantalla, (255, 215, 0), (int(pantalla_x), int(my)), 10)
+            
+            pygame.draw.circle(pantalla, (255, 235, 100), (int(pantalla_x) - 3, int(my) - 3), 6)
+            
+            pygame.draw.circle(pantalla, (200, 160, 0), (int(pantalla_x), int(my)), 10, 2)
 
 def dibujar_gasolinas(pantalla, gasolinas, cam_x):
     for gx, gy in gasolinas:
-        if -50 <= gx - cam_x <= ANCHO + 50:
-            pygame.draw.rect(pantalla, (220, 40, 40), (int(gx - cam_x)-12, int(gy)-15, 24, 30), border_radius=4)
+        pantalla_x = gx - cam_x
+        if -50 <= pantalla_x <= ANCHO + 50:
+            rect_cuerpo = pygame.Rect(int(pantalla_x) - 14, int(gy) - 16, 28, 34)
+            pygame.draw.rect(pantalla, (160, 20, 20), rect_cuerpo.inflate(4, 4), border_radius=6) # Sombra
+            pygame.draw.rect(pantalla, (220, 40, 40), rect_cuerpo, border_radius=5) # Color base
+            
+            pygame.draw.rect(pantalla, (180, 30, 30), (int(pantalla_x) - 7, int(gy) - 24, 14, 8), border_radius=3)
+            
+            pygame.draw.rect(pantalla, (255, 255, 255), (int(pantalla_x) - 5, int(gy) - 8, 10, 6), border_radius=2)
+            
+            pygame.draw.line(pantalla, (255, 255, 255), (int(pantalla_x) - 6, int(gy) + 4), (int(pantalla_x) + 6, int(gy) + 4), 2)
 
 def dibujar_ui_monedas(pantalla, auto):
     fuente = pygame.font.SysFont("Arial", 28, bold=True)
