@@ -77,12 +77,9 @@ def dibujar_menu(
         )
 
 
-
-
     for i in range(60):
 
         x = (i * 137) % ANCHO
-
         y = (i * 91) % ALTO
 
         brillo = 180 + int(
@@ -593,7 +590,9 @@ def dibujar_game_over(
     pantalla,
     auto,
     opcion,
-    mensaje
+    mensaje,
+    record_dist, 
+    record_mon
 ):
 
     sombra = pygame.Surface(
@@ -608,16 +607,14 @@ def dibujar_game_over(
         (0, 0)
     )
 
-    # Caja principal
-
     pygame.draw.rect(
         pantalla,
         (30, 30, 45),
         (
             ANCHO // 2 - 280,
-            140,
+            110,
             560,
-            340
+            440
         ),
         border_radius=20
     )
@@ -627,14 +624,15 @@ def dibujar_game_over(
         ROJO,
         (
             ANCHO // 2 - 280,
-            140,
+            110,
             560,
-            340
+            440
         ),
         4,
         border_radius=20
     )
 
+    # --- TÍTULO (MENSAJE) ---
     titulo = fuente_grande.render(
         mensaje,
         True,
@@ -644,27 +642,66 @@ def dibujar_game_over(
     pantalla.blit(
         titulo,
         (
-            ANCHO // 2
-            - titulo.get_width() // 2,
-            190
+            ANCHO // 2 - titulo.get_width() // 2,
+            140
         )
     )
 
-    score = fuente.render(
+    # --- PUNTUACIÓN DE LA PARTIDA ACTUAL ---
+    score_dist = fuente.render(
         f"Distancia: {int(auto.x/10)} m",
         True,
         BLANCO
     )
-
     pantalla.blit(
-        score,
+        score_dist,
         (
-            ANCHO // 2
-            - score.get_width() // 2,
-            260
+            ANCHO // 2 - score_dist.get_width() // 2,
+            210
         )
     )
 
+    score_monedas = fuente.render(
+        f"Monedas: {auto.monedas}",
+        True,
+        AMARILLO
+    )
+    pantalla.blit(
+        score_monedas,
+        (
+            ANCHO // 2 - score_monedas.get_width() // 2,
+            250
+        )
+    )
+
+    # --- RÉCORDS HISTÓRICOS ---
+    txt_rec_dist = fuente_pequena.render(
+        f"Mejor Distancia: {record_dist} m",
+        True,
+        (200, 200, 200)
+    )
+    pantalla.blit(
+        txt_rec_dist,
+        (
+            ANCHO // 2 - txt_rec_dist.get_width() // 2,
+            310
+        )
+    )
+
+    txt_rec_mon = fuente_pequena.render(
+        f"Récord Monedas: {record_mon}",
+        True,
+        (200, 200, 200)
+    )
+    pantalla.blit(
+        txt_rec_mon,
+        (
+            ANCHO // 2 - txt_rec_mon.get_width() // 2,
+            340
+        )
+    )
+
+    # --- BOTONES ---
     opciones = [
         "Reiniciar",
         "Volver al menu"
@@ -681,7 +718,7 @@ def dibujar_game_over(
                 (70, 120, 255),
                 (
                     ANCHO // 2 - 180,
-                    320 + i * 70,
+                    380 + i * 70,
                     360,
                     50
                 ),
@@ -699,9 +736,8 @@ def dibujar_game_over(
         pantalla.blit(
             render,
             (
-                ANCHO // 2
-                - render.get_width() // 2,
-                330 + i * 70
+                ANCHO // 2 - render.get_width() // 2,
+                390 + i * 70
             )
         )
 
@@ -819,4 +855,3 @@ def dibujar_velocimetro(pantalla, velocidad):
         texto_vel,
         (cx - 50, cy + 45)
     )
-
