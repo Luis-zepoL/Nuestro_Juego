@@ -15,11 +15,12 @@ from ui import (
     dibujar_selector_mapa,
     dibujar_preview_mapa,
     dibujar_taller,
+    dibujar_ajustes,
     dibujar_game_over,
     dibujar_velocimetro
 )
 
-from Datos import guardar_record, cargar_record
+from Datos import guardar_datos, cargar_datos
 
 
 class Game:
@@ -50,6 +51,13 @@ class Game:
 
         # Variable para manejar la navegación en el taller
         self.opcion_taller = 0
+
+        # 
+        self.opcion_tienda = 0
+
+        #
+        self.moto_desbloqueada = False
+        self.desierto_desbloqueado = False
 
         # Vehículos disponibles para el taller
         self.vehiculos = [
@@ -110,6 +118,7 @@ class Game:
         # Auto
         self.auto = Auto()
 
+        # Monedas
         self.coins = generar_monedas(
             self.terrain
         )
@@ -135,16 +144,30 @@ class Game:
             "El coche no opina igual",
             "Eso dolio mas de lo esperado"
         ]
-<<<<<<< HEAD
-
-=======
         
+        # Variable para animar el menú
+        self.menu_anim = 0
+
+        # Variable para animar el preview del vehículo en el menú
+        self.preview_offset = 0
         self.menu_anim = 0
 
         # --------------- Guardado ----------------
-        records = cargar_record()
-        self.record_monedas = records["monedas"]
-        self.record_distancia = records["distancia"]
+
+        datos = cargar_datos()
+
+        self.monedas_totales = datos.get("monedas", 0)
+        self.record_distancia = datos.get("distancia", 0)
+
+        self.moto_desbloqueada = datos.get("moto", False)
+        self.desierto_desbloqueado = datos.get("desierto", False)
+
+        self.volumen = datos.get("volumen", 50)
+        #precios
+
+
+        # ---------- ajustes -----------------------
+        self.volumen = 50
 
     # ---------------- EVENTOS ----------------
 
@@ -170,7 +193,7 @@ class Game:
                         self.opcion_menu += 1
 
                     # Asegurar que la opción esté en rango
-                    self.opcion_menu %= 4
+                    self.opcion_menu %= 6
 
                     # Seleccionar opción
                     if evento.key == pygame.K_RETURN:
@@ -192,9 +215,14 @@ class Game:
                             # Cambiar al estado de taller para personalizar el vehículo
                             self.estado = TALLER
 
-                        # Si se selecciona la opción de salir, detener el loop principal para cerrar el juego
+                        #
                         elif self.opcion_menu == 3:
-                            # Detener el loop principal para cerrar el juego
+                            self.estado = TIENDA
+
+                        elif self.opcion_menu == 4:
+                            self.estado = AJUSTES
+
+                        elif self.opcion_menu == 5:
                             self.running = False
 
                 #Navegación del menú Game Over
@@ -216,7 +244,6 @@ class Game:
 
                         # Si se selecciona la opción de volver a jugar, reiniciar el auto y volver al estado de juego
                         if self.opcion_game_over == 0:
-
                             self.auto.reset()
                             self.estado = JUGANDO
 
@@ -232,7 +259,6 @@ class Game:
                     if evento.key == pygame.K_UP:
                         self.vehiculo_actual -= 1
 
->>>>>>> 61e2094063f33de995190097959828e9f4d86471
                     if evento.key == pygame.K_DOWN:
                         self.vehiculo_actual += 1
 
@@ -262,10 +288,93 @@ class Game:
                         self.color_actual
                     ]
 
-                    
                     if evento.key == pygame.K_RETURN:
 
                             self.estado = MENU
+
+                #
+                elif self.estado == TIENDA:
+
+                    if evento.key == pygame.K_UP:
+                        self.opcion_tienda = (
+                            self.opcion_tienda - 1
+                        ) % 2
+
+                    if evento.key == pygame.K_DOWN:
+                        self.opcion_tienda = (
+                            self.opcion_tienda + 1
+                        ) % 2
+
+                    if evento.key == pygame.K_RETURN:
+
+                        # Comprar Moto
+                        if self.opcion_tienda == 0:
+
+                            if not self.moto_desbloqueada:
+
+                                if (
+                                    self.monedas_totales >= self.precios["Moto"]["monedas"]
+                                    and
+                                    self.record_distancia >= self.precios["Moto"]["distancia"]
+                                ):
+
+                                    self.monedas_totales -= self.precios["Moto"]["monedas"]
+
+                                    self.moto_desbloqueada = True
+
+                                    guardar_datos({
+                                        "monedas": self.monedas_totales,
+                                        "distancia": self.record_distancia,
+                                        "moto": self.moto_desbloqueada,
+                                        "desierto": self.desierto_desbloqueado,
+                                        "volumen": self.volumen
+                                    })
+
+                        # Comprar Desierto
+                        elif self.opcion_tienda == 1:
+
+                            if not self.desierto_desbloqueado:
+
+                                if (
+                                    self.monedas_totales >= self.precios["Desierto"]["monedas"]
+                                    and
+                                    self.record_distancia >= self.precios["Desierto"]["distancia"]
+                                ):
+
+                                    self.monedas_totales -= self.precios["Desierto"]["monedas"]
+
+                                    self.desierto_desbloqueado = True
+
+                                    guardar_datos({
+                                        "monedas": self.monedas_totales,
+                                        "distancia": self.record_distancia,
+                                        "moto": self.moto_desbloqueada,
+                                        "desierto": self.desierto_desbloqueado,
+                                        "volumen": self.volumen
+                                    })
+
+                                    
+
+                    if evento.key == pygame.K_ESCAPE:
+
+                        self.estado = MENU
+
+                #
+                elif self.estado == AJUSTES:
+
+                    if evento.key == pygame.K_RIGHT:
+                        self.volumen += 5
+
+                    if evento.key == pygame.K_LEFT:
+                        self.volumen -= 5
+
+                    self.volumen = max(
+                        0,
+                        min(100, self.volumen)
+                    )
+
+                    if evento.key == pygame.K_RETURN:
+                        self.estado = MENU
 
                 # Navegación del menú de selección de mapa
                 elif self.estado == SELECCION_MAPA:
@@ -280,7 +389,15 @@ class Game:
 
                     if evento.key == pygame.K_RETURN:
 
-                        self.estado = MENU
+                        if (
+                            self.mapas[self.mapa_actual] == "Desierto"
+                            and
+                            not self.desierto_desbloqueado
+                        ):
+                            pass
+
+                        else:
+                            self.estado = MENU
 
 
     # ---------------- UPDATE ----------------
@@ -297,48 +414,6 @@ class Game:
             import terreno
             terreno.AUTO_X_GLOBAL = self.auto.x
 
-<<<<<<< HEAD
-            actualizar_terreno(
-                self.terrain,
-                self.auto.x
-            )
-
-            self.auto.update(
-                dt,
-                teclas,
-                self.terrain
-            )
-
-            import terreno
-            terreno.AUTO_X_GLOBAL = self.auto.x
-
-            # --- Monedas ---
-            recolectar_monedas(
-                self.auto,
-                self.coins
-            )
-
-            actualizar_monedas(
-                self.coins,
-                self.auto,
-                self.terrain
-            )
-            
-            # --- Gasolina ---
-            recolectar_gasolinas(
-                self.auto,
-                self.gasolinas
-            )
-
-            actualizar_gasolinas(
-                self.gasolinas,
-                self.auto,
-                self.terrain
-            )
-
-            # tiempo de game over para mostrar mensaje antes de pasar a pantalla de game over
-            if self.auto.game_over:
-=======
             # --- Monedas ---
             recolectar_monedas(self.auto, self.coins)
             actualizar_monedas(self.coins, self.auto, self.terrain)
@@ -349,28 +424,26 @@ class Game:
             
             # --- Game Over y Guardado ---
             if self.auto.game_over:
-                if self.auto.monedas > self.record_monedas: 
-                    self.record_monedas = self.auto.monedas
-                if self.auto.x > self.record_distancia: 
+
+                self.monedas_totales += self.auto.monedas
+
+                if self.auto.x > self.record_distancia:
                     self.record_distancia = int(self.auto.x)
-                
-                guardar_record(self.record_monedas, self.record_distancia)
-                
->>>>>>> 61e2094063f33de995190097959828e9f4d86471
+
+                guardar_datos({
+                    "monedas": self.monedas_totales,
+                    "distancia": self.record_distancia,
+                    "moto": self.moto_desbloqueada,
+                    "desierto": self.desierto_desbloqueado,
+                    "volumen": self.volumen
+                })
+
                 self.game_over_timer = 0.5
                 self.estado = GAME_OVER_DELAY
         
         elif self.estado == GAME_OVER_DELAY:
-<<<<<<< HEAD
-
-            self.game_over_timer -= dt / FPS
-
-            if self.game_over_timer <= 0:
-
-=======
             self.game_over_timer -= dt / FPS
             if self.game_over_timer <= 0:
->>>>>>> 61e2094063f33de995190097959828e9f4d86471
                 self.estado = GAME_OVER
 
 
@@ -406,6 +479,17 @@ class Game:
                 self.nombre_colores[self.color_actual]
             )
             pygame.display.flip()
+            return
+        
+        if self.estado == AJUSTES:
+
+            dibujar_ajustes(
+                self.pantalla,
+                self.volumen
+            )
+
+            pygame.display.flip()
+
             return
 
         # Fondo cielo
@@ -493,7 +577,9 @@ class Game:
                 self.opcion_menu,
                 self.menu_anim,
                 self.vehiculos[self.vehiculo_actual],
-                self.colores[self.color_actual]
+                self.colores[self.color_actual],
+                self.monedas_totales,
+                self.record_distancia
             )
 
         elif self.estado == SELECCION_MAPA:
@@ -519,22 +605,16 @@ class Game:
 
         elif self.estado == GAME_OVER:
             # ---> AQUÍ ESTÁ LA CORRECCIÓN DE LOS ARGUMENTOS <---
-            dibujar_game_over(
-                self.pantalla,
-                self.auto,
-                self.opcion_game_over,
-                self.mensajes_game_over[
-<<<<<<< HEAD
-                    int(self.auto.x)
-                    % len(self.mensajes_game_over)
-                ]
-=======
-                    int(self.auto.x) % len(self.mensajes_game_over)
-                ],
-                self.record_distancia,
-                self.record_monedas
->>>>>>> 61e2094063f33de995190097959828e9f4d86471
-            )
+           dibujar_game_over(
+            self.pantalla,
+            self.auto,
+            self.opcion_game_over,
+            self.mensajes_game_over[
+                int(self.auto.x) % len(self.mensajes_game_over)
+            ],
+            self.record_distancia,
+            self.monedas_totales
+        )
 
         # Actualizar pantalla
         pygame.display.flip()

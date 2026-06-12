@@ -13,14 +13,11 @@ class Auto:
         self.color = ROJO
         self.reset()
 
-<<<<<<< HEAD
-=======
         self.usar_sprites = False
         self.sprite_auto = None
         self.sprite_moto = None
-        self.reset()
+       
         
->>>>>>> 61e2094063f33de995190097959828e9f4d86471
 
     # ---------------- RESET ----------------
     def reset(self):
@@ -37,11 +34,7 @@ class Auto:
 
         self.fuel = 100
         
-<<<<<<< HEAD
         # ---> AGREGAR ESTO <---
-=======
-        
->>>>>>> 61e2094063f33de995190097959828e9f4d86471
         self.monedas = 0 
 
         self.cam_x = 0

@@ -57,7 +57,9 @@ def dibujar_menu(
     opcion,
     animacion,
     vehiculo,
-    color_vehiculo
+    color_vehiculo,
+    monedas,
+    distancia
 ):
 
     # Fondo degradado
@@ -124,6 +126,79 @@ def dibujar_menu(
             104
         )
     )
+
+    # PANEL RECORDS
+
+    pygame.draw.rect(
+        pantalla,
+        (20,20,20),
+        (
+            20,
+            20,
+            280,
+            90
+        ),
+        border_radius=15
+    )
+
+    texto1 = fuente.render(
+        f"Monedas: {monedas}",
+        True,
+        AMARILLO
+    )
+
+    texto2 = fuente.render(
+        f"Distancia: {distancia} m",
+        True,
+        BLANCO
+    )
+
+    pantalla.blit(texto1,(40,35))
+    pantalla.blit(texto2,(40,70))
+
+    pygame.draw.line(
+        pantalla,
+        AMARILLO,
+        (
+            ANCHO//2 - 250,
+            70
+        ),
+        (
+            ANCHO//2 + 250,
+            70
+        ),
+        5
+    )
+
+    texto_record = fuente.render(
+        f"RECORD: {distancia} m",
+        True,
+        AMARILLO
+    )
+
+    pantalla.blit(
+        texto_record,
+        (
+            ANCHO//2
+            - texto_record.get_width()//2,
+            30
+        )
+    )
+
+    for i in range(11):
+
+        x = (
+            ANCHO//2 - 250
+            + i*50
+        )
+
+        pygame.draw.line(
+            pantalla,
+            BLANCO,
+            (x,60),
+            (x,80),
+            2
+        )
 
     # Título
     titulo = fuente_grande.render(
@@ -251,6 +326,7 @@ def dibujar_menu(
         "Jugar",
         "Seleccionar mapa",
         "Taller",
+        "Ajustes",
         "Salir"
     ]
 
@@ -860,6 +936,81 @@ def dibujar_game_over(
                 390 + i * 70
             )
         )
+
+#--------------- dibujar ajustes -----------------
+
+def dibujar_ajustes(
+    pantalla,
+    volumen
+):
+
+    pantalla.fill((25, 25, 35))
+
+    titulo = fuente_grande.render(
+        "AJUSTES",
+        True,
+        BLANCO
+    )
+
+    pantalla.blit(
+        titulo,
+        (
+            ANCHO//2 - titulo.get_width()//2,
+            80
+        )
+    )
+
+    texto = fuente.render(
+        f"Volumen: {volumen}%",
+        True,
+        BLANCO
+    )
+
+    pantalla.blit(
+        texto,
+        (
+            ANCHO//2 - 90,
+            220
+        )
+    )
+
+    pygame.draw.rect(
+        pantalla,
+        GRIS,
+        (
+            ANCHO//2 - 150,
+            280,
+            300,
+            25
+        ),
+        border_radius=10
+    )
+
+    pygame.draw.rect(
+        pantalla,
+        VERDE,
+        (
+            ANCHO//2 - 150,
+            280,
+            volumen * 3,
+            25
+        ),
+        border_radius=10
+    )
+
+    ayuda = fuente_pequena.render(
+        "← → Cambiar volumen | ENTER Volver",
+        True,
+        BLANCO
+    )
+
+    pantalla.blit(
+        ayuda,
+        (
+            ANCHO//2 - ayuda.get_width()//2,
+            600
+        )
+    )
 
 # ---------------- VELOCIMETRO ----------------
 
