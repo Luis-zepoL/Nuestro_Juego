@@ -6,6 +6,9 @@ from estados import *
 from auto import Auto
 from terreno import *
 from monedas import *
+import monedas
+
+
 
 import terreno
 
@@ -537,7 +540,7 @@ class Game:
         )
 
         # Monedas y Gasolina
-        dibujar_monedas(
+        monedas.dibujar_monedas(
             self.pantalla,
             self.coins,
             self.auto.cam_x
@@ -559,7 +562,7 @@ class Game:
         )
         
         # Interfaz del contador de monedas
-        dibujar_ui_monedas(
+        monedas.dibujar_ui_monedas(
             self.pantalla,
             self.auto
         )
