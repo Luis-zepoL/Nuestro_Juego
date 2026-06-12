@@ -117,7 +117,7 @@ def dibujar_monedas(pantalla, coins, cam_x):
         if -50 <= pantalla_x <= ANCHO + 50:
             pygame.draw.circle(
                 pantalla,
-                AMARILLO, "Poner amarillo en config"
+                AMARILLO, 
                 (int(pantalla_x), int(my)),
                 10
             )
