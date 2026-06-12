@@ -19,6 +19,8 @@ from ui import (
     dibujar_velocimetro
 )
 
+from Datos import guardar_record, cargar_record
+
 
 class Game:
     # ---------------- INICIALIZACIÓN ----------------
@@ -112,6 +114,9 @@ class Game:
         self.coins = generar_monedas(
             self.terrain
         )
+        self.gasolinas = generar_gasolinas(
+            self.terrain
+        )
 
         # Variable para controlar el loop principal
         self.running = True
@@ -137,6 +142,12 @@ class Game:
 
         # Variable para animar el preview del vehículo en el menú
         self.preview_offset = 0
+        self.menu_anim = 0
+
+        # --------------- Guardado ----------------
+        records = cargar_record()
+        self.record_monedas = records["monedas"]
+        self.record_distancia = records["distancia"]
 
     # ---------------- EVENTOS ----------------
 
@@ -276,50 +287,42 @@ class Game:
     # ---------------- UPDATE ----------------
 
     def update(self, dt):
-
         teclas = pygame.key.get_pressed()
         self.menu_anim += dt
         self.preview_offset += 0.3* dt
 
         if self.estado == JUGANDO:
-
-            actualizar_terreno(
-                self.terrain,
-                self.auto.x
-            )
-
-            self.auto.update(
-                dt,
-                teclas,
-                self.terrain
-            )
-
+            actualizar_terreno(self.terrain, self.auto.x)
+            self.auto.update(dt, teclas, self.terrain)
+            
             import terreno
             terreno.AUTO_X_GLOBAL = self.auto.x
 
-            recolectar_monedas(
-                self.auto,
-                self.coins,
-                self.terrain
-            )
-
-            actualizar_monedas(
-                self.coins,
-                self.auto,
-                self.terrain
-            )
-            #tiempo de game over para mostrar mensaje antes de pasar a pantalla de game over
+            # --- Monedas ---
+            recolectar_monedas(self.auto, self.coins)
+            actualizar_monedas(self.coins, self.auto, self.terrain)
+            
+            # --- Gasolina ---
+            recolectar_gasolinas(self.auto, self.gasolinas)
+            actualizar_gasolinas(self.gasolinas, self.auto, self.terrain)
+            
+            # --- Game Over y Guardado ---
             if self.auto.game_over:
+                if self.auto.monedas > self.record_monedas: 
+                    self.record_monedas = self.auto.monedas
+                if self.auto.x > self.record_distancia: 
+                    self.record_distancia = int(self.auto.x)
+                
+                guardar_record(self.record_monedas, self.record_distancia)
+                
                 self.game_over_timer = 0.5
                 self.estado = GAME_OVER_DELAY
         
         elif self.estado == GAME_OVER_DELAY:
-
             self.game_over_timer -= dt / FPS
-
             if self.game_over_timer <= 0:
-
                 self.estado = GAME_OVER
+
 
     # ---------------- DIBUJO ----------------
 
@@ -341,22 +344,18 @@ class Game:
                 self.mapas,
                 self.mapa_actual
             )
-
             pygame.display.flip()
-
             return
     
         if self.estado == TALLER:
-            #Taller
+            # Taller
             dibujar_taller(
                 self.pantalla,
                 self.auto,
                 self.vehiculos[self.vehiculo_actual],
                 self.nombre_colores[self.color_actual]
             )
-
             pygame.display.flip()
-
             return
 
         # Fondo cielo
@@ -379,7 +378,6 @@ class Game:
         color_terreno = VERDE
 
         if self.mapas[self.mapa_actual] == "Desierto":
-
             color_terreno = (194, 178, 128)
 
         dibujar_terreno(
@@ -404,19 +402,30 @@ class Game:
             self.terrain
         )
 
-        # Monedas
+        # Monedas y Gasolina
         dibujar_monedas(
             self.pantalla,
             self.coins,
-            self.auto.cam_x,
-            self.terrain
+            self.auto.cam_x
+        )
+        
+        dibujar_gasolinas(
+            self.pantalla,
+            self.gasolinas,
+            self.auto.cam_x
         )
 
         # Auto
         self.auto.draw(self.pantalla)
 
-        # HUD
+        # HUD (Barras y texto base)
         dibujar_hud(
+            self.pantalla,
+            self.auto
+        )
+        
+        # Interfaz del contador de monedas
+        dibujar_ui_monedas(
             self.pantalla,
             self.auto
         )
@@ -430,16 +439,12 @@ class Game:
         # Menu / Selector / Game over
         if self.estado == MENU:
             dibujar_menu(
-            self.pantalla,
-            self.opcion_menu,
-            self.menu_anim,
-            self.vehiculos[
-                self.vehiculo_actual
-            ],
-            self.colores[
-                self.color_actual
-            ]
-        )
+                self.pantalla,
+                self.opcion_menu,
+                self.menu_anim,
+                self.vehiculos[self.vehiculo_actual],
+                self.colores[self.color_actual]
+            )
 
         elif self.estado == SELECCION_MAPA:
             dibujar_selector_mapa(
@@ -463,14 +468,16 @@ class Game:
             )
 
         elif self.estado == GAME_OVER:
+            # ---> AQUÍ ESTÁ LA CORRECCIÓN DE LOS ARGUMENTOS <---
             dibujar_game_over(
                 self.pantalla,
                 self.auto,
                 self.opcion_game_over,
                 self.mensajes_game_over[
-                    int(self.auto.x)
-                    % len(self.mensajes_game_over)
-                ]
+                    int(self.auto.x) % len(self.mensajes_game_over)
+                ],
+                self.record_distancia,
+                self.record_monedas
             )
 
         # Actualizar pantalla
@@ -485,7 +492,6 @@ class Game:
             dt = self.clock.tick(FPS) / 16.67
 
             if dt > 2:
-
                 dt = 1
 
             self.eventos()
@@ -493,5 +499,5 @@ class Game:
             self.update(dt)
 
             self.draw()
-
+        
         pygame.quit()

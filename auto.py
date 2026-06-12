@@ -18,8 +18,8 @@ class Auto:
         self.sprite_moto = None
         self.reset()
         
-    # ---------------- RESET ----------------
 
+    # ---------------- RESET ----------------
     def reset(self):
         self.x = 300
         self.y = 200
@@ -33,10 +33,14 @@ class Auto:
         self.wheel_rotation = 0
 
         self.fuel = 100
+        
+        
+        self.monedas = 0 
 
         self.cam_x = 0
 
         self.game_over = False
+
 
     # ---------------- UPDATE ------------------
     def update(self, dt, teclas, terrain):
@@ -475,7 +479,7 @@ class Auto:
             )
         )
 
-        #
+        
         pantalla.blit(
             moto_rotada,
             rect
