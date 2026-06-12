@@ -501,6 +501,126 @@ def dibujar_selector_mapa(
             )
         )
 
+# -------------------------cometario faltante
+
+def dibujar_preview_mapa(
+    pantalla,
+    mapa,
+    offset
+):
+    # 
+    if mapa == "Pradera":
+
+        pantalla.fill(
+            (135,206,235)
+        )
+
+        color_terreno = (
+            60,190,70
+        )
+
+    else:
+
+        pantalla.fill(
+            (255,210,120)
+        )
+
+        color_terreno = (
+            194,178,128
+        )
+   
+    # ---------------- NUBES ----------------
+
+    preview_nubes = [
+        (100, 80),
+        (350, 130),
+        (600, 90),
+        (900, 160),
+        (1200, 110),
+    ]
+
+    for x, y in preview_nubes:
+
+        nube_x = x - (offset * 3)
+
+        while nube_x < -120:
+            nube_x += 1600
+
+        # nube principal
+        pygame.draw.circle(
+            pantalla,
+            BLANCO,
+            (int(nube_x), y),
+            30
+        )
+
+        # lado derecho
+        pygame.draw.circle(
+            pantalla,
+            BLANCO,
+            (
+                int(nube_x + 25),
+                y + 5
+            ),
+            25
+        )
+
+        # lado izquierdo
+        pygame.draw.circle(
+            pantalla,
+            BLANCO,
+            (
+                int(nube_x - 25),
+                y + 5
+            ),
+            25
+        )
+
+        # parte superior
+        pygame.draw.circle(
+            pantalla,
+            BLANCO,
+            (
+                int(nube_x),
+                y - 15
+            ),
+            22
+        )
+
+
+    puntos = []
+
+    for x in range(-100, ANCHO + 100, 20):
+
+        y = (
+            500
+            +
+            math.sin(
+                (x + offset * 30)
+                * 0.01
+            ) * 60
+        )
+
+        puntos.append((x,y))
+
+    
+
+    poligono = puntos[:]
+
+    poligono.append(
+        (ANCHO,ALTO)
+    )
+
+    poligono.append(
+        (0,ALTO)
+    )
+
+    pygame.draw.polygon(
+        pantalla,
+        color_terreno,
+        poligono
+    )        
+
 #---------------- TALLER ----------------
 
 def dibujar_taller(
