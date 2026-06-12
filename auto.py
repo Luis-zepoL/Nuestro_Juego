@@ -31,15 +31,23 @@ class Auto:
         self.danio_cabeza = 0 
 
     def update(self, dt, teclas, terrain):
-
         self.vel_y += GRAVEDAD * dt
+        
         aceleracion = 0
+        
         if teclas[pygame.K_d] and self.fuel > 0:
             aceleracion += MOTOR * 1.5
             self.fuel -= 0.12 * dt
-        if teclas[pygame.K_a]:
-            aceleracion -= FRENO
         
+        if teclas[pygame.K_a] and self.fuel > 0:
+            aceleracion -= MOTOR * 1.0
+            self.fuel -= 0.10 * dt
+
+        if self.fuel <= 0:
+            self.fuel = 0
+            self.game_over = True
+        
+        # Fisicas (NO MOVER)
         self.vel_x += aceleracion * dt
         self.vel_x *= 0.992
         self.x += self.vel_x * dt
@@ -62,7 +70,6 @@ class Auto:
                 self.rot_vel += (r.offset_x * 0.00005) * profundidad * dt
 
         rot_n = (self.rotacion + math.pi) % (2 * math.pi) - math.pi
-        
         distancia_suelo = get_ground(self.x, terrain) - self.y
         if abs(rot_n) > math.radians(90) and distancia_suelo < 40:
             self.game_over = True
@@ -81,12 +88,12 @@ class Auto:
         self.wheel_rotation += self.vel_x * 0.12
         self.cam_x += ((self.x - 350) - self.cam_x) * 0.08
 
-
         rot_n = (self.rotacion + math.pi) % (2 * math.pi) - math.pi
         if abs(rot_n) > math.radians(90) and tocando_suelo and abs(self.vel_x) < 0.5:
             self.game_over = True
             
-        if self.y > ALTO + 300: self.game_over = True
+        if self.y > ALTO + 300: 
+            self.game_over = True
 
     def draw(self, pantalla):
         if self.tipo == "Moto": self.draw_moto(pantalla)
@@ -94,7 +101,6 @@ class Auto:
 
     def draw_auto(self, pantalla):
         car_surface = pygame.Surface((170, 90), pygame.SRCALPHA)
-
         pygame.draw.ellipse(car_surface, (0, 0, 0, 70), (20, 58, 130, 22))
         pygame.draw.line(car_surface, GRIS, (45, 45), (45, 65), 5)
         pygame.draw.line(car_surface, GRIS, (125, 45), (125, 65), 5)
@@ -121,5 +127,4 @@ class Auto:
         pantalla.blit(carro_rotado, rect)
 
     def draw_moto(self, pantalla):
-    
         pass
