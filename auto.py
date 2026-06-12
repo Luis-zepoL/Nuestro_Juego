@@ -28,10 +28,10 @@ class Auto:
         self.monedas = 0
         self.cam_x = 0
         self.game_over = False
-        self.danio_cabeza = 0 # Nuevo: margen para la muerte
+        self.danio_cabeza = 0 
 
     def update(self, dt, teclas, terrain):
-        # 1. Movimiento y Gravedad
+
         self.vel_y += GRAVEDAD * dt
         aceleracion = 0
         if teclas[pygame.K_d] and self.fuel > 0:
@@ -45,7 +45,6 @@ class Auto:
         self.x += self.vel_x * dt
         self.y += self.vel_y * dt
 
-        # 2. Física de Ruedas
         cos_r = math.cos(self.rotacion)
         sin_r = math.sin(self.rotacion)
         tocando_suelo = False
@@ -62,16 +61,12 @@ class Auto:
                 self.vel_y = min(self.vel_y, 0)
                 self.rot_vel += (r.offset_x * 0.00005) * profundidad * dt
 
-        # 3. DETECCIÓN DE MUERTE (CRÍTICO)
-        # Normalizamos la rotación entre -PI y PI
         rot_n = (self.rotacion + math.pi) % (2 * math.pi) - math.pi
         
-        # Si el techo (carrocería) está muy cerca del suelo y estamos boca abajo
         distancia_suelo = get_ground(self.x, terrain) - self.y
         if abs(rot_n) > math.radians(90) and distancia_suelo < 40:
             self.game_over = True
 
-        # 4. Control de Rotación (Flechas)
         if not tocando_suelo:
             if teclas[pygame.K_RIGHT]: self.rot_vel -= 0.015 * dt
             if teclas[pygame.K_LEFT]: self.rot_vel += 0.015 * dt
@@ -86,7 +81,7 @@ class Auto:
         self.wheel_rotation += self.vel_x * 0.12
         self.cam_x += ((self.x - 350) - self.cam_x) * 0.08
 
-        # 5. Muerte
+
         rot_n = (self.rotacion + math.pi) % (2 * math.pi) - math.pi
         if abs(rot_n) > math.radians(90) and tocando_suelo and abs(self.vel_x) < 0.5:
             self.game_over = True
@@ -99,7 +94,7 @@ class Auto:
 
     def draw_auto(self, pantalla):
         car_surface = pygame.Surface((170, 90), pygame.SRCALPHA)
-        # Dibujo del chasis
+
         pygame.draw.ellipse(car_surface, (0, 0, 0, 70), (20, 58, 130, 22))
         pygame.draw.line(car_surface, GRIS, (45, 45), (45, 65), 5)
         pygame.draw.line(car_surface, GRIS, (125, 45), (125, 65), 5)
@@ -112,7 +107,7 @@ class Auto:
         pygame.draw.circle(car_surface, (255, 255, 180), (148, 38), 6)
         pygame.draw.circle(car_surface, (255, 80, 80), (22, 38), 5)
         pygame.draw.rect(car_surface, (90, 90, 90), (5, 42, 15, 5), border_radius=2)
-        # Ruedas
+        
         for rx in (45, 125):
             pygame.draw.circle(car_surface, (25, 25, 25), (rx, 70), 20)
             pygame.draw.circle(car_surface, (60, 60, 60), (rx, 70), 20, 3)
@@ -126,5 +121,5 @@ class Auto:
         pantalla.blit(carro_rotado, rect)
 
     def draw_moto(self, pantalla):
-        # (Tu lógica original de moto va aquí)
+    
         pass
