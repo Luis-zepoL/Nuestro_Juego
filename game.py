@@ -17,6 +17,8 @@ from ui import (
     dibujar_velocimetro
 )
 
+from Datos import guardar_record, cargar_record
+
 
 class Game:
 
@@ -86,7 +88,6 @@ class Game:
 
         self.auto = Auto()
 
-        # Generamos monedas y gasolina
         self.coins = generar_monedas(
             self.terrain
         )
@@ -108,8 +109,13 @@ class Game:
             "El coche no opina igual",
             "Eso dolio mas de lo esperado"
         ]
-
+        
         self.menu_anim = 0
+
+        # --------------- Guardado ----------------
+        records = cargar_record()
+        self.record_monedas = records["monedas"]
+        self.record_distancia = records["distancia"]
 
     # ---------------- EVENTOS ----------------
 
@@ -235,62 +241,41 @@ class Game:
     # ---------------- UPDATE ----------------
 
     def update(self, dt):
-
         teclas = pygame.key.get_pressed()
         self.menu_anim += dt
 
         if self.estado == JUGANDO:
-
-            actualizar_terreno(
-                self.terrain,
-                self.auto.x
-            )
-
-            self.auto.update(
-                dt,
-                teclas,
-                self.terrain
-            )
-
+            actualizar_terreno(self.terrain, self.auto.x)
+            self.auto.update(dt, teclas, self.terrain)
+            
             import terreno
             terreno.AUTO_X_GLOBAL = self.auto.x
 
             # --- Monedas ---
-            recolectar_monedas(
-                self.auto,
-                self.coins
-            )
-
-            actualizar_monedas(
-                self.coins,
-                self.auto,
-                self.terrain
-            )
+            recolectar_monedas(self.auto, self.coins)
+            actualizar_monedas(self.coins, self.auto, self.terrain)
             
             # --- Gasolina ---
-            recolectar_gasolinas(
-                self.auto,
-                self.gasolinas
-            )
-
-            actualizar_gasolinas(
-                self.gasolinas,
-                self.auto,
-                self.terrain
-            )
-
-            # tiempo de game over para mostrar mensaje antes de pasar a pantalla de game over
+            recolectar_gasolinas(self.auto, self.gasolinas)
+            actualizar_gasolinas(self.gasolinas, self.auto, self.terrain)
+            
+            # --- Game Over y Guardado ---
             if self.auto.game_over:
+                if self.auto.monedas > self.record_monedas: 
+                    self.record_monedas = self.auto.monedas
+                if self.auto.x > self.record_distancia: 
+                    self.record_distancia = int(self.auto.x)
+                
+                guardar_record(self.record_monedas, self.record_distancia)
+                
                 self.game_over_timer = 0.5
                 self.estado = GAME_OVER_DELAY
         
         elif self.estado == GAME_OVER_DELAY:
-
             self.game_over_timer -= dt / FPS
-
             if self.game_over_timer <= 0:
-
                 self.estado = GAME_OVER
+
 
     # ---------------- DIBUJO ----------------
 
@@ -428,14 +413,16 @@ class Game:
             )
 
         elif self.estado == GAME_OVER:
+            # ---> AQUÍ ESTÁ LA CORRECCIÓN DE LOS ARGUMENTOS <---
             dibujar_game_over(
                 self.pantalla,
                 self.auto,
                 self.opcion_game_over,
                 self.mensajes_game_over[
-                    int(self.auto.x)
-                    % len(self.mensajes_game_over)
-                ]
+                    int(self.auto.x) % len(self.mensajes_game_over)
+                ],
+                self.record_distancia,
+                self.record_monedas
             )
 
         # Actualizar pantalla
@@ -457,5 +444,5 @@ class Game:
             self.update(dt)
 
             self.draw()
-
+        
         pygame.quit()
