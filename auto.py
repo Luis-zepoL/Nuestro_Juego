@@ -10,6 +10,7 @@ class Auto:
     def __init__(self):
         self.reset()
 
+
     # ---------------- RESET ----------------
     def reset(self):
         self.x = 300
@@ -24,6 +25,9 @@ class Auto:
         self.wheel_rotation = 0
 
         self.fuel = 100
+        
+        # ---> AGREGAR ESTO <---
+        self.monedas = 0 
 
         self.cam_x = 0
 
