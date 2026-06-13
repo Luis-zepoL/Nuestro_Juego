@@ -96,9 +96,8 @@ class Auto:
             self.game_over = True
 
     def draw(self, pantalla):
-        if self.tipo == "Moto": self.draw_moto(pantalla)
-        else: self.draw_auto(pantalla)
-
+        self.draw_auto(pantalla)
+        
     def draw_auto(self, pantalla):
         car_surface = pygame.Surface((170, 90), pygame.SRCALPHA)
         pygame.draw.ellipse(car_surface, (0, 0, 0, 70), (20, 58, 130, 22))
@@ -126,5 +125,26 @@ class Auto:
         rect = carro_rotado.get_rect(center=(self.x - self.cam_x, self.y))
         pantalla.blit(carro_rotado, rect)
 
-    def draw_moto(self, pantalla):
-        pass
+    def draw_preview(
+        self,
+        pantalla,
+        x,
+        y
+    ):
+
+        x_original = self.x
+        y_original = self.y
+        cam_original = self.cam_x
+        rot_original = self.rotacion
+
+        self.x = x
+        self.y = y
+        self.cam_x = 0
+        self.rotacion = 0
+
+        self.draw(pantalla)
+
+        self.x = x_original
+        self.y = y_original
+        self.cam_x = cam_original
+        self.rotacion = rot_original

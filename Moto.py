@@ -13,18 +13,7 @@ class Moto(Auto):
         # self.color = ROJO
 
     def draw(self, pantalla):
-        # Si hay sprite, usarlo
-        if self.usar_sprites and self.sprite_moto:
-            sprite = pygame.transform.rotate(
-                self.sprite_moto,
-                math.degrees(self.rotacion)
-            )
-            rect = sprite.get_rect(
-                center=(self.x - self.cam_x, self.y)
-            )
-            pantalla.blit(sprite, rect)
-            return
-
+       
         # Dibujar la moto
         moto = pygame.Surface((140, 80), pygame.SRCALPHA)
 
@@ -50,3 +39,27 @@ class Moto(Auto):
         )
         rect = moto_rotada.get_rect(center=(self.x - self.cam_x, self.y))
         pantalla.blit(moto_rotada, rect)
+
+    def draw_preview(
+        self,
+        pantalla,
+        x,
+        y
+    ):
+
+        x_original = self.x
+        y_original = self.y
+        cam_original = self.cam_x
+        rot_original = self.rotacion
+
+        self.x = x
+        self.y = y
+        self.cam_x = 0
+        self.rotacion = 0
+
+        self.draw(pantalla)
+
+        self.x = x_original
+        self.y = y_original
+        self.cam_x = cam_original
+        self.rotacion = rot_original

@@ -305,7 +305,7 @@ def dibujar_menu(
             5
         )
 
-    # Caja principal
+    # Caja principal (rectangulo del menu)
     pygame.draw.rect(
         pantalla,
         (
@@ -314,18 +314,19 @@ def dibujar_menu(
             200 + int(55 * math.sin(animacion * 0.05))
         ),
         (
-            ANCHO // 2 - 220,
-            230,
-            440,
-            310
+            ANCHO // 2 - 260,
+            220,
+            520,
+            420
         ),
-        border_radius=20
+        border_radius=25
     )
 
     opciones = [
         "Jugar",
         "Seleccionar mapa",
         "Taller",
+        "Tienda",
         "Ajustes",
         "Salir"
     ]
@@ -380,17 +381,29 @@ def dibujar_menu(
         )
 
     ayuda = fuente_pequena.render(
-        "↑↓ para navegar",
+        "↑↓ para navegar / ENTER para seleccionar",
         True,
         BLANCO
+    )
+
+    pygame.draw.rect(
+        pantalla,
+        (20,20,20),
+        (
+            ANCHO//2 - 220,
+            645,
+            440,
+            45
+        ),
+        border_radius=10
     )
 
     pantalla.blit(
         ayuda,
         (
-            ANCHO // 2
-            - ayuda.get_width() // 2,
-            520
+            ANCHO//2
+            - ayuda.get_width()//2,
+            655
         )
     )
 
@@ -399,7 +412,8 @@ def dibujar_menu(
 def dibujar_selector_mapa(
     pantalla,
     mapas,
-    seleccion
+    seleccion,
+    desbloqueado
 ):
 
     s = pygame.Surface(
@@ -410,7 +424,7 @@ def dibujar_selector_mapa(
     s.fill((0, 0, 0, 170))
 
     pantalla.blit(s, (0, 0))
-
+    
     titulo = fuente_grande.render(
         "SELECCIONAR MAPA",
         True,
@@ -497,85 +511,235 @@ def dibujar_selector_mapa(
                 y + 50
             )
         )
+    
+    #ASAaaaaaaaaa
+    pygame.draw.rect(
+        pantalla,
+        (20, 20, 30),
+        (
+            40,
+            180,
+            250,
+            180
+        ),
+        border_radius=15
+    )
+
+    if mapas[seleccion] == "Pradera":
 
         pygame.draw.rect(
             pantalla,
-            (20, 20, 30),
+            (135, 206, 235),
             (
-                40,
-                180,
-                250,
-                180
+                50,
+                190,
+                230,
+                160
             ),
-            border_radius=15
+            border_radius=10
         )
 
-        if mapas[seleccion] == "Pradera":
+        pygame.draw.rect(
+            pantalla,
+            VERDE,
+            (
+                50,
+                290,
+                230,
+                60
+            ),
+            border_radius=10
+        )
 
-            pygame.draw.rect(
-                pantalla,
-                (135, 206, 235),
-                (
-                    50,
-                    190,
-                    230,
-                    160
-                ),
-                border_radius=10
+    else:
+
+        pygame.draw.rect(
+            pantalla,
+            (255, 210, 120),
+            (
+                50,
+                190,
+                230,
+                160
+            ),
+            border_radius=10
+        )
+
+        pygame.draw.rect(
+            pantalla,
+            (194, 178, 128),
+            (
+                50,
+                290,
+                230,
+                60
+            ),
+            border_radius=10
+        )
+
+    # Mostrar bloqueo dentro del preview
+    if (
+        mapas[seleccion] == "Desierto"
+        and
+        not desbloqueado
+    ):
+
+        sombra = pygame.Surface(
+            (230,160),
+            pygame.SRCALPHA
+        )
+
+        sombra.fill((0,0,0,170))
+
+        pantalla.blit(
+            sombra,
+            (50,190)
+        )
+
+        txt = fuente.render(
+            "BLOQUEADO",
+            True,
+            ROJO
+        )
+
+        pantalla.blit(
+            txt,
+            (
+                165 - txt.get_width()//2,
+                240
             )
+        )
 
-            pygame.draw.rect(
-                pantalla,
-                VERDE,
-                (
-                    50,
-                    290,
-                    230,
-                    60
-                ),
-                border_radius=10
-            )
-
-        else:
-
-            pygame.draw.rect(
-                pantalla,
-                (255, 210, 120),
-                (
-                    50,
-                    190,
-                    230,
-                    160
-                ),
-                border_radius=10
-            )
-
-            pygame.draw.rect(
-                pantalla,
-                (194, 178, 128),
-                (
-                    50,
-                    290,
-                    230,
-                    60
-                ),
-                border_radius=10
-            )
-
-        ayuda = fuente_pequena.render(
-            "ENTER confirmar",
+        txt2 = fuente_pequena.render(
+            "Compra en Tienda",
             True,
             BLANCO
         )
 
         pantalla.blit(
-            ayuda,
+            txt2,
             (
-                ANCHO // 2
-                - ayuda.get_width() // 2,
-                620
+                165 - txt2.get_width()//2,
+                280
             )
         )
+
+# ---------------- PREVIEW MAPA ----------------
+
+    pygame.draw.rect(
+        pantalla,
+        (20, 20, 30),
+        (
+            40,
+            180,
+            250,
+            180
+        ),
+        border_radius=15
+    )
+
+    if mapas[seleccion] == "Pradera":
+
+        pygame.draw.rect(
+            pantalla,
+            (135, 206, 235),
+            (
+                50,
+                190,
+                230,
+                160
+            ),
+            border_radius=10
+        )
+
+        pygame.draw.rect(
+            pantalla,
+            VERDE,
+            (
+                50,
+                290,
+                230,
+                60
+            ),
+            border_radius=10
+        )
+
+    else:
+
+        pygame.draw.rect(
+            pantalla,
+            (255, 210, 120),
+            (
+                50,
+                190,
+                230,
+                160
+            ),
+            border_radius=10
+        )
+
+        pygame.draw.rect(
+            pantalla,
+            (194, 178, 128),
+            (
+                50,
+                290,
+                230,
+                60
+            ),
+            border_radius=10
+        )
+
+    # ---------- BLOQUEO DEL DESIERTO ----------
+
+    if (
+        mapas[seleccion] == "Desierto"
+        and
+        not desbloqueado
+    ):
+
+        sombra = pygame.Surface(
+            (230,160),
+            pygame.SRCALPHA
+        )
+
+        sombra.fill((0,0,0,180))
+
+        pantalla.blit(
+            sombra,
+            (50,190)
+        )
+
+        txt = fuente.render(
+            "BLOQUEADO",
+            True,
+            (255,80,80)
+        )
+
+        pantalla.blit(
+            txt,
+            (
+                165 - txt.get_width()//2,
+                235
+            )
+        )
+
+        txt2 = fuente_pequena.render(
+            "Compra en Tienda",
+            True,
+            BLANCO
+        )
+
+        pantalla.blit(
+            txt2,
+            (
+                165 - txt2.get_width()//2,
+                275
+            )
+        )
+
+
+    
 
 # -------------------------cometario faltante
 
@@ -703,7 +867,8 @@ def dibujar_taller(
     pantalla,
     auto,
     vehiculo,
-    color_nombre
+    color_nombre,
+    moto_desbloqueada
 ):
 
     pantalla.fill(
@@ -737,11 +902,73 @@ def dibujar_taller(
         border_radius=20
     )
 
-    auto.draw_preview(
-        pantalla,
-        ANCHO//2,
-        350
-    )
+    if vehiculo == "Auto":
+
+        pygame.draw.rect(
+            pantalla,
+            auto.color,
+            (
+                ANCHO//2 - 70,
+                300,
+                140,
+                40
+            ),
+            border_radius=10
+        )
+
+        pygame.draw.circle(
+            pantalla,
+            NEGRO,
+            (ANCHO//2 - 40, 350),
+            18
+        )
+
+        pygame.draw.circle(
+            pantalla,
+            NEGRO,
+            (ANCHO//2 + 40, 350),
+            18
+        )
+
+    else:
+
+        pygame.draw.circle(
+            pantalla,
+            NEGRO,
+            (ANCHO//2 - 50, 350),
+            18
+        )
+
+        pygame.draw.circle(
+            pantalla,
+            NEGRO,
+            (ANCHO//2 + 50, 350),
+            18
+        )
+
+        pygame.draw.line(
+            pantalla,
+            auto.color,
+            (ANCHO//2 - 50, 350),
+            (ANCHO//2, 320),
+            5
+        )
+
+        pygame.draw.line(
+            pantalla,
+            auto.color,
+            (ANCHO//2, 320),
+            (ANCHO//2 + 50, 350),
+            5
+        )
+
+        pygame.draw.line(
+            pantalla,
+            auto.color,
+            (ANCHO//2, 320),
+            (ANCHO//2 + 25, 290),
+            5
+        )
 
     txt1 = fuente.render(
         f"Vehiculo: {vehiculo}",
@@ -764,6 +991,23 @@ def dibujar_taller(
         txt2,
         (430,520)
     )
+
+    if vehiculo == "Moto" and not moto_desbloqueada:
+
+        bloqueado = fuente.render(
+            "NO COMPRADA",
+            True,
+            (255,80,80)
+        )
+
+        pantalla.blit(
+            bloqueado,
+            (
+                ANCHO//2
+                - bloqueado.get_width()//2,
+                560
+            )
+        )
 
     ayuda = fuente_pequena.render(
         "↑↓ Vehiculo | ←→ Color | ENTER Volver",
@@ -1126,3 +1370,152 @@ def dibujar_velocimetro(pantalla, velocidad):
         texto_vel,
         (cx - 50, cy + 45)
     )
+
+# dibujar tienda
+
+def dibujar_tienda(
+    pantalla,
+    monedas,
+    distancia,
+    seleccion,
+    moto_comprada,
+    desierto_comprado
+):
+
+    pantalla.fill((20,25,40))
+
+    titulo = fuente_grande.render(
+        "TIENDA",
+        True,
+        AMARILLO
+    )
+
+    pantalla.blit(
+        titulo,
+        (
+            ANCHO//2 - titulo.get_width()//2,
+            40
+        )
+    )
+
+    txt = fuente.render(
+        f"Monedas: {monedas}",
+        True,
+        BLANCO
+    )
+
+    pantalla.blit(txt,(40,40))
+
+    txt2 = fuente.render(
+        f"Distancia: {distancia}m",
+        True,
+        BLANCO
+    )
+
+    pantalla.blit(txt2,(40,80))
+
+    items = [
+        "Moto",
+        "Desierto"
+    ]
+
+    for i,item in enumerate(items):
+
+        y = 180 + i*180
+
+        color = (50,50,70)
+
+        if i == seleccion:
+            color = (80,120,255)
+
+        pygame.draw.rect(
+            pantalla,
+            color,
+            (
+                ANCHO//2 - 250,
+                y,
+                500,
+                130
+            ),
+            border_radius=20
+        )
+
+        nombre = fuente.render(
+            item,
+            True,
+            BLANCO
+        )
+
+        pantalla.blit(
+            nombre,
+            (
+                ANCHO//2 - 200,
+                y+20
+            )
+        )
+
+        if item == "Moto":
+
+            comprado = moto_comprada
+
+            precio = 50
+            req = 1000
+
+        else:
+
+            comprado = desierto_comprado
+
+            precio = 150
+            req = 3000
+
+        estado = "COMPRADO"
+
+        color_estado = VERDE
+
+        if not comprado:
+
+            estado = "COMPRAR"
+
+            color_estado = AMARILLO
+
+        txt_estado = fuente.render(
+            estado,
+            True,
+            color_estado
+        )
+
+        pantalla.blit(
+            txt_estado,
+            (
+                ANCHO//2 + 80,
+                y+20
+            )
+        )
+
+        precio_txt = fuente_pequena.render(
+            f"Costo: {precio} monedas",
+            True,
+            BLANCO
+        )
+
+        pantalla.blit(
+            precio_txt,
+            (
+                ANCHO//2 - 200,
+                y+65
+            )
+        )
+
+        dist_txt = fuente_pequena.render(
+            f"Distancia requerida: {req}m",
+            True,
+            BLANCO
+        )
+
+        pantalla.blit(
+            dist_txt,
+            (
+                ANCHO//2 - 200,
+                y+95
+            )
+        )

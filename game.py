@@ -4,6 +4,7 @@ from config import *
 from estados import *
 
 from auto import Auto
+from Moto import Moto
 from terreno import *
 from monedas import *
 import monedas
@@ -18,6 +19,7 @@ from ui import (
     dibujar_selector_mapa,
     dibujar_preview_mapa,
     dibujar_taller,
+    dibujar_tienda,
     dibujar_ajustes,
     dibujar_game_over,
     dibujar_velocimetro
@@ -167,6 +169,18 @@ class Game:
 
         self.volumen = datos.get("volumen", 50)
         #precios
+        self.precios = {
+
+            "Moto": {
+                "monedas": 50,
+                "distancia": 1000
+            },
+
+            "Desierto": {
+                "monedas": 150,
+                "distancia": 3000
+            }
+        }
 
 
         # ---------- ajustes -----------------------
@@ -255,47 +269,63 @@ class Game:
                             self.auto.reset()
                             self.estado = MENU
                 
-                # Navegación del taller
+                   # Navegación del taller
                 elif self.estado == TALLER:
 
-                    # Mover hacia arriba o abajo para seleccionar vehículo o color
+                    # Cambiar vehículo
                     if evento.key == pygame.K_UP:
+
                         self.vehiculo_actual -= 1
 
-                    if evento.key == pygame.K_DOWN:
+                        self.vehiculo_actual %= len(
+                            self.vehiculos
+                        )
+
+                        self.auto.tipo = self.vehiculos[
+                            self.vehiculo_actual
+                        ]
+
+                    elif evento.key == pygame.K_DOWN:
+
                         self.vehiculo_actual += 1
 
-                    # Asegurar que el índice del vehículo esté dentro del rango de vehículos disponibles
-                    self.vehiculo_actual %= len(
-                        self.vehiculos
-                    )
+                        self.vehiculo_actual %= len(
+                            self.vehiculos
+                        )
 
-                    # Mover hacia la derecha o izquierda para cambiar el color del vehículo
-                    if evento.key == pygame.K_RIGHT:
+                        self.auto.tipo = self.vehiculos[
+                            self.vehiculo_actual
+                        ]
+
+                    # Cambiar color
+                    elif evento.key == pygame.K_RIGHT:
+
                         self.color_actual += 1
 
-                    if evento.key == pygame.K_LEFT:
+                        self.color_actual %= len(
+                            self.colores
+                        )
+
+                        self.auto.color = self.colores[
+                            self.color_actual
+                        ]
+
+                    elif evento.key == pygame.K_LEFT:
+
                         self.color_actual -= 1
 
-                    # Asegurar que el índice del color esté dentro del rango de colores disponibles
-                    self.color_actual %= len(
-                        self.colores
-                    )
+                        self.color_actual %= len(
+                            self.colores
+                        )
 
-                    # Actualizar el tipo y color del auto según las selecciones en el taller
-                    self.auto.tipo = self.vehiculos[
-                        self.vehiculo_actual
-                    ]
+                        self.auto.color = self.colores[
+                            self.color_actual
+                        ]
 
-                    self.auto.color = self.colores[
-                        self.color_actual
-                    ]
+                    # Volver al menú
+                    elif evento.key == pygame.K_RETURN:
 
-                    if evento.key == pygame.K_RETURN:
-
-                            self.estado = MENU
-
-                #
+                        self.estado = MENU
                 elif self.estado == TIENDA:
 
                     if evento.key == pygame.K_UP:
@@ -468,7 +498,8 @@ class Game:
             dibujar_selector_mapa(
                 self.pantalla,
                 self.mapas,
-                self.mapa_actual
+                self.mapa_actual,
+                self.desierto_desbloqueado
             )
             pygame.display.flip()
             return
@@ -479,8 +510,23 @@ class Game:
                 self.pantalla,
                 self.auto,
                 self.vehiculos[self.vehiculo_actual],
-                self.nombre_colores[self.color_actual]
+                self.nombre_colores[self.color_actual],
+                self.moto_desbloqueada
             )
+            pygame.display.flip()
+            return
+        
+        if self.estado == TIENDA:
+
+            dibujar_tienda(
+                self.pantalla,
+                self.monedas_totales,
+                self.record_distancia,
+                self.opcion_tienda,
+                self.moto_desbloqueada,
+                self.desierto_desbloqueado
+            )
+
             pygame.display.flip()
             return
         
