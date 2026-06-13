@@ -135,70 +135,74 @@ def dibujar_menu(
         (
             20,
             20,
-            280,
-            90
+            300,
+            150
         ),
         border_radius=15
     )
 
+    # Moneda grande
+    pygame.draw.circle(
+        pantalla,
+        (180,140,0),
+        (55,55),
+        18
+    )
+
+    pygame.draw.circle(
+        pantalla,
+        (255,215,0),
+        (55,55),
+        15
+    )
+
+    pygame.draw.circle(
+        pantalla,
+        (255,235,100),
+        (50,50),
+        8
+    )
+
+    pygame.draw.circle(
+        pantalla,
+        (200,160,0),
+        (55,55),
+        15,
+        2
+    )
+
     texto1 = fuente.render(
-        f"Monedas: {monedas}",
+        str(monedas),
         True,
         AMARILLO
     )
 
     texto2 = fuente.render(
-        f"Distancia: {distancia} m",
+        f"Mayor distancia ",
         True,
         BLANCO
     )
 
-    pantalla.blit(texto1,(40,35))
-    pantalla.blit(texto2,(40,70))
-
-    pygame.draw.line(
-        pantalla,
-        AMARILLO,
-        (
-            ANCHO//2 - 250,
-            70
-        ),
-        (
-            ANCHO//2 + 250,
-            70
-        ),
-        5
-    )
-
-    texto_record = fuente.render(
-        f"RECORD: {distancia} m",
+    texto3 = fuente.render(
+        f"{distancia} m",
         True,
-        AMARILLO
+        BLANCO
     )
 
     pantalla.blit(
-        texto_record,
-        (
-            ANCHO//2
-            - texto_record.get_width()//2,
-            30
-        )
+        texto1,
+        (85,40)
     )
 
-    for i in range(11):
+    pantalla.blit(
+        texto2,
+        (40,80)
+    )
 
-        x = (
-            ANCHO//2 - 250
-            + i*50
-        )
-
-        pygame.draw.line(
-            pantalla,
-            BLANCO,
-            (x,60),
-            (x,80),
-            2
-        )
+    pantalla.blit(
+        texto3,
+        (40,120)
+    )
 
     # Título
     titulo = fuente_grande.render(
@@ -424,6 +428,10 @@ def dibujar_selector_mapa(
     s.fill((0, 0, 0, 170))
 
     pantalla.blit(s, (0, 0))
+
+    dibujar_boton_salir(
+        pantalla
+    )
     
     titulo = fuente_grande.render(
         "SELECCIONAR MAPA",
@@ -875,6 +883,10 @@ def dibujar_taller(
         (25,25,35)
     )
 
+    dibujar_boton_salir(
+        pantalla
+    )
+
     titulo = fuente_grande.render(
         "TALLER",
         True,
@@ -1097,7 +1109,7 @@ def dibujar_game_over(
         score_dist,
         (
             ANCHO // 2 - score_dist.get_width() // 2,
-            210
+            300
         )
     )
 
@@ -1111,33 +1123,6 @@ def dibujar_game_over(
         (
             ANCHO // 2 - score_monedas.get_width() // 2,
             250
-        )
-    )
-
-    # --- RÉCORDS HISTÓRICOS ---
-    txt_rec_dist = fuente_pequena.render(
-        f"Mejor Distancia: {record_dist} m",
-        True,
-        (200, 200, 200)
-    )
-    pantalla.blit(
-        txt_rec_dist,
-        (
-            ANCHO // 2 - txt_rec_dist.get_width() // 2,
-            310
-        )
-    )
-
-    txt_rec_mon = fuente_pequena.render(
-        f"Récord Monedas: {record_mon}",
-        True,
-        (200, 200, 200)
-    )
-    pantalla.blit(
-        txt_rec_mon,
-        (
-            ANCHO // 2 - txt_rec_mon.get_width() // 2,
-            340
         )
     )
 
@@ -1189,6 +1174,10 @@ def dibujar_ajustes(
 ):
 
     pantalla.fill((25, 25, 35))
+
+    dibujar_boton_salir(
+        pantalla
+    )
 
     titulo = fuente_grande.render(
         "AJUSTES",
@@ -1384,6 +1373,10 @@ def dibujar_tienda(
 
     pantalla.fill((20,25,40))
 
+    dibujar_boton_salir(
+        pantalla
+    )
+
     titulo = fuente_grande.render(
         "TIENDA",
         True,
@@ -1404,7 +1397,7 @@ def dibujar_tienda(
         BLANCO
     )
 
-    pantalla.blit(txt,(40,40))
+    pantalla.blit(txt,(40,120))
 
     txt2 = fuente.render(
         f"Distancia: {distancia}m",
@@ -1412,7 +1405,7 @@ def dibujar_tienda(
         BLANCO
     )
 
-    pantalla.blit(txt2,(40,80))
+    pantalla.blit(txt2,(40,150))
 
     items = [
         "Moto",
@@ -1519,3 +1512,31 @@ def dibujar_tienda(
                 y+95
             )
         )
+
+def dibujar_boton_salir(pantalla):
+
+    texto = fuente_pequena.render(
+        "ESC - Salir",
+        True,
+        BLANCO
+    )
+
+    pygame.draw.rect(
+        pantalla,
+        (40,40,55),
+        (
+            20,
+            20,
+            140,
+            40
+        ),
+        border_radius=10
+    )
+
+    pantalla.blit(
+        texto,
+        (
+            30,
+            30
+        )
+    )

@@ -163,6 +163,7 @@ class Game:
 
         self.monedas_totales = datos.get("monedas", 0)
         self.record_distancia = datos.get("distancia", 0)
+        self.distancia_partida = 0
 
         self.moto_desbloqueada = datos.get("moto", False)
         self.desierto_desbloqueado = datos.get("desierto", False)
@@ -272,6 +273,9 @@ class Game:
                    # Navegación del taller
                 elif self.estado == TALLER:
 
+                    if evento.key == pygame.K_ESCAPE:
+                        self.estado = MENU
+
                     # Cambiar vehículo
                     if evento.key == pygame.K_UP:
 
@@ -325,7 +329,22 @@ class Game:
                     # Volver al menú
                     elif evento.key == pygame.K_RETURN:
 
-                        self.estado = MENU
+                        vehiculo = self.vehiculos[
+                            self.vehiculo_actual
+                        ]
+
+                        # No permitir seleccionar la moto si está bloqueada
+                        if (
+                            vehiculo == "Moto"
+                            and
+                            not self.moto_desbloqueada
+                        ):
+                            pass
+
+                        else:
+                            self.estado = MENU
+
+
                 elif self.estado == TIENDA:
 
                     if evento.key == pygame.K_UP:
@@ -395,6 +414,9 @@ class Game:
                 #
                 elif self.estado == AJUSTES:
 
+                    if evento.key == pygame.K_ESCAPE:
+                        self.estado = MENU
+
                     if evento.key == pygame.K_RIGHT:
                         self.volumen += 5
 
@@ -411,6 +433,9 @@ class Game:
 
                 # Navegación del menú de selección de mapa
                 elif self.estado == SELECCION_MAPA:
+
+                    if evento.key == pygame.K_ESCAPE:
+                        self.estado = MENU
 
                     if evento.key == pygame.K_UP:
                         self.mapa_actual -= 1
@@ -458,6 +483,7 @@ class Game:
             # --- Game Over y Guardado ---
             if self.auto.game_over:
 
+                self.distancia_partida = int(self.auto.x)
                 self.monedas_totales += self.auto.monedas
 
                 if self.auto.x > self.record_distancia:
@@ -654,16 +680,17 @@ class Game:
 
         elif self.estado == GAME_OVER:
             # ---> AQUÍ ESTÁ LA CORRECCIÓN DE LOS ARGUMENTOS <---
-           dibujar_game_over(
-            self.pantalla,
-            self.auto,
-            self.opcion_game_over,
-            self.mensajes_game_over[
-                int(self.auto.x) % len(self.mensajes_game_over)
-            ],
-            self.record_distancia,
-            self.monedas_totales
-        )
+            dibujar_game_over(
+                self.pantalla,
+                self.auto,
+                self.opcion_game_over,
+                self.mensajes_game_over[
+                    int(self.auto.x) % len(self.mensajes_game_over)
+                ],
+                self.distancia_partida,
+                self.monedas_totales
+            )
+        
 
         # Actualizar pantalla
         pygame.display.flip()
