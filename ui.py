@@ -331,7 +331,6 @@ def dibujar_menu(
         "Seleccionar mapa",
         "Taller",
         "Tienda",
-        "Ajustes",
         "Salir"
     ]
 
@@ -1165,85 +1164,6 @@ def dibujar_game_over(
                 390 + i * 70
             )
         )
-
-#--------------- dibujar ajustes -----------------
-
-def dibujar_ajustes(
-    pantalla,
-    volumen
-):
-
-    pantalla.fill((25, 25, 35))
-
-    dibujar_boton_salir(
-        pantalla
-    )
-
-    titulo = fuente_grande.render(
-        "AJUSTES",
-        True,
-        BLANCO
-    )
-
-    pantalla.blit(
-        titulo,
-        (
-            ANCHO//2 - titulo.get_width()//2,
-            80
-        )
-    )
-
-    texto = fuente.render(
-        f"Volumen: {volumen}%",
-        True,
-        BLANCO
-    )
-
-    pantalla.blit(
-        texto,
-        (
-            ANCHO//2 - 90,
-            220
-        )
-    )
-
-    pygame.draw.rect(
-        pantalla,
-        GRIS,
-        (
-            ANCHO//2 - 150,
-            280,
-            300,
-            25
-        ),
-        border_radius=10
-    )
-
-    pygame.draw.rect(
-        pantalla,
-        VERDE,
-        (
-            ANCHO//2 - 150,
-            280,
-            volumen * 3,
-            25
-        ),
-        border_radius=10
-    )
-
-    ayuda = fuente_pequena.render(
-        "← → Cambiar volumen | ENTER Volver",
-        True,
-        BLANCO
-    )
-
-    pantalla.blit(
-        ayuda,
-        (
-            ANCHO//2 - ayuda.get_width()//2,
-            600
-        )
-    )
 
 # ---------------- VELOCIMETRO ----------------
 

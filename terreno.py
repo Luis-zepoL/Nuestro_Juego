@@ -4,25 +4,36 @@ import random
 
 from config import *
 
-# ---------------- CONFIG TERRENO ----------------
+# ---------------- CONFIGURACIÓN GENERAL DEL TERRENO ----------------
 
+# Distancia entre cada punto del terreno
 ESPACIADO = 20
 
+# Distancia máxima que se genera por delante del jugador
 DISTANCIA_RENDER = 4000
+
+# Distancia a partir de la cual se eliminan segmentos viejos
 DISTANCIA_ELIMINAR = 1000
 
+# Altura base usada como referencia para el terreno
 altura_base = 520
 
+# Guarda la posición global del vehículo para otros módulos
 AUTO_X_GLOBAL = 0
+
+
+# ---------------- GENERACIÓN DE PUNTOS DE CONTROL ----------------
 
 def generar_control_points():
 
     global PUNTOS_CONTROL
 
+    # Reinicia la lista de puntos de control
     PUNTOS_CONTROL = []
 
     x = -3000
 
+    # Genera puntos de referencia a lo largo de todo el mapa
     while x < 200000:
 
         y = random.randint(
@@ -34,19 +45,25 @@ def generar_control_points():
             (x, y)
         )
 
+        # Distancia aleatoria entre puntos
         x += random.randint(
             600,
             1800
         )
 
+
+# ---------------- GENERACIÓN DE PUENTES ----------------
+
 def generar_puentes():
 
     global PUENTES
 
+    # Reinicia la lista de puentes
     PUENTES = []
 
     x = 6000
 
+    # Crea puentes a intervalos regulares
     while x < 100000:
 
         largo = 700
@@ -61,6 +78,9 @@ def generar_puentes():
 
         x += 12000
 
+
+# ---------------- VARIABLES GLOBALES DEL TERRENO ----------------
+
 SEMILLA = 0
 
 PUNTOS_CONTROL = []
@@ -69,16 +89,21 @@ PUENTES = []
 CACTUS = []
 NUBES = []
 
+
+# ---------------- SUAVIZADO DE CURVAS ----------------
+
 def smoothstep(t):
 
     return t * t * (3 - 2 * t)
 
-# ---------------- GENERAR INICIAL ----------------
+
+# ---------------- GENERACIÓN INICIAL DEL TERRENO ----------------
 
 def generar_terreno():
 
     terrain = []
 
+    # Genera puntos visibles del terreno
     for x in range(
         -2000,
         DISTANCIA_RENDER,
@@ -91,14 +116,17 @@ def generar_terreno():
 
     return terrain
 
-#---------------- GENERAR NUBES ----------------
+
+# ---------------- GENERACIÓN DE NUBES ----------------
 
 def generar_nubes():
 
     global NUBES
 
+    # Reinicia la lista de nubes
     NUBES = []
 
+    # Genera posiciones predefinidas para las nubes
     for i in range(50):
 
         NUBES.append(
@@ -109,12 +137,14 @@ def generar_nubes():
             )
         )
 
-#---------------- GENERAR CACTUS ----------------
+
+# ---------------- GENERACIÓN DE CACTUS ----------------
 
 def generar_cactus():
 
     global CACTUS
 
+    # Reinicia la lista de cactus
     CACTUS = []
 
     x = 1000
@@ -123,6 +153,7 @@ def generar_cactus():
 
         dentro_puente = False
 
+        # Evita colocar cactus cerca de puentes
         for puente in PUENTES:
 
             if puente["inicio"] - 100 <= x <= puente["fin"] + 100:
@@ -130,16 +161,19 @@ def generar_cactus():
                 dentro_puente = True
                 break
 
+        # Solo agrega cactus si no hay puente cerca
         if not dentro_puente:
 
             CACTUS.append(x)
 
+        # Distancia aleatoria entre cactus
         x += random.randint(
             500,
             1500
         )
 
-#---------------- DIBUJAR CACTUS ----------------
+
+# ---------------- DIBUJO DE CACTUS ----------------
 
 def dibujar_cactus(
     pantalla,
@@ -147,10 +181,13 @@ def dibujar_cactus(
     terrain
 ):
 
+    # Recorre todos los cactus generados
     for x in CACTUS:
 
+        # Convierte coordenada global a coordenada de pantalla
         px = x - cam_x
 
+        # Solo dibuja cactus visibles
         if -100 <= px <= ANCHO + 100:
 
             suelo = get_ground(
@@ -158,6 +195,7 @@ def dibujar_cactus(
                 terrain
             )
 
+            # Tronco principal
             pygame.draw.rect(
                 pantalla,
                 (20,120,20),
@@ -169,6 +207,7 @@ def dibujar_cactus(
                 )
             )
 
+            # Brazo izquierdo
             pygame.draw.rect(
                 pantalla,
                 (20,120,20),
@@ -180,6 +219,7 @@ def dibujar_cactus(
                 )
             )
 
+            # Brazo derecho
             pygame.draw.rect(
                 pantalla,
                 (20,120,20),
@@ -191,10 +231,11 @@ def dibujar_cactus(
                 )
             )
 
-# ---------------- ALTURA ----------------
+# ---------------- CÁLCULO DE ALTURA DEL TERRENO ----------------
 
 def generar_altura(x):
 
+    # Busca entre qué dos puntos de control se encuentra la posición x
     for i in range(
         len(PUNTOS_CONTROL) - 1
     ):
@@ -204,29 +245,34 @@ def generar_altura(x):
 
         if x1 <= x <= x2:
 
+            # Obtiene la posición relativa entre ambos puntos
             t = (
                 (x - x1)
                 /
                 (x2 - x1)
             )
 
+            # Suaviza la transición
             t = smoothstep(t)
 
+            # Calcula la altura interpolada
             return (
                 y1 * (1 - t)
                 +
                 y2 * t
             )
 
+    # Altura por defecto si no encuentra puntos válidos
     return altura_base
 
-# ---------------- EXPANDIR TERRENO ----------------
+
+# ---------------- EXPANSIÓN DINÁMICA DEL TERRENO ----------------
 
 def actualizar_terreno(terrain, jugador_x):
 
     ultimo_x = terrain[-1][0]
 
-    # Generar hacia adelante
+    # Genera nuevo terreno delante del jugador
     while ultimo_x < jugador_x + DISTANCIA_RENDER:
 
         ultimo_x += ESPACIADO
@@ -238,24 +284,25 @@ def actualizar_terreno(terrain, jugador_x):
             )
         )
 
-    # Eliminar puntos viejos
-    #while len(terrain) > 2 and terrain[1][0] < jugador_x - DISTANCIA_ELIMINAR:
+    # Sistema para eliminar terreno antiguo (actualmente desactivado)
 
+    #while len(terrain) > 2 and terrain[1][0] < jugador_x - DISTANCIA_ELIMINAR:
     #    terrain.pop(0)
 
-# ---------------- GROUND ----------------
+
+# ---------------- OBTENER ALTURA DEL SUELO ----------------
 
 def get_ground(x, terrain):
 
-    # Si está antes del terreno
+    # Si está antes del primer punto generado
     if x <= terrain[0][0]:
         return terrain[0][1]
 
-    # Si está después del terreno
+    # Si está después del último punto generado
     if x >= terrain[-1][0]:
         return terrain[-1][1]
 
-    # Buscar segmento correcto
+    # Busca el segmento donde se encuentra x
     for i in range(len(terrain) - 1):
 
         x1, y1 = terrain[i]
@@ -263,14 +310,17 @@ def get_ground(x, terrain):
 
         if x1 <= x <= x2:
 
+            # Interpolación lineal entre dos puntos del terreno
             t = (x - x1) / (x2 - x1)
 
             altura = y1 * (1 - t) + y2 * t
 
+            # Verifica si está dentro de algún puente
             for puente in PUENTES:
 
                 if puente["inicio"] <= x <= puente["fin"]:
 
+                    # Calcula deformación base del puente
                     centro = (
                         puente["inicio"]
                         + puente["fin"]
@@ -295,16 +345,19 @@ def get_ground(x, terrain):
                         factor ** 2
                     ) * puente["profundidad"]
 
+                    # Añade deformación causada por el vehículo
                     altura += deformacion_puente(
                         x,
                         AUTO_X_GLOBAL
                     )
 
             return altura
-    # Seguridad extra
+
+    # Valor de seguridad
     return terrain[-1][1]
 
-# ---------------- DIBUJAR PUENTES ----------------
+
+# ---------------- DIBUJO DE PUENTES ----------------
 
 def dibujar_puentes(
     pantalla,
@@ -312,12 +365,14 @@ def dibujar_puentes(
     terrain
 ):
 
+    # Recorre todos los puentes existentes
     for puente in PUENTES:
 
         puntos = []
 
         x = puente["inicio"]
 
+        # Genera los puntos que forman la curva del puente
         while x <= puente["fin"]:
 
             y = get_ground(
@@ -336,9 +391,7 @@ def dibujar_puentes(
 
         if len(puntos) > 1:
 
-            # =====================
-            # TABLONES DEL PUENTE
-            # =====================
+            # ---------------- TABLONES DEL PUENTE ----------------
 
             pygame.draw.lines(
                 pantalla,
@@ -356,9 +409,7 @@ def dibujar_puentes(
                 3
             )
 
-            # =====================
-            # EXTREMOS DEL PUENTE
-            # =====================
+            # ---------------- EXTREMOS DEL PUENTE ----------------
 
             inicio = (
                 puente["inicio"] - cam_x,
@@ -424,9 +475,7 @@ def dibujar_puentes(
                 ]
             )
 
-            # =====================
-            # POSTES
-            # =====================
+            # ---------------- POSTES DEL PUENTE ----------------
 
             altura_poste = 80
 
@@ -452,9 +501,7 @@ def dibujar_puentes(
                 )
             )
 
-            # =====================
-            # CABLE SUPERIOR
-            # =====================
+            # ---------------- CABLE SUPERIOR ----------------
 
             cable = []
 
@@ -485,9 +532,7 @@ def dibujar_puentes(
                 3
             )
 
-            # =====================
-            # TENSORES
-            # =====================
+            # ---------------- TENSORES ----------------
 
             for i in range(
                 0,
@@ -502,18 +547,24 @@ def dibujar_puentes(
                     puntos[i],
                     2
                 )
-# ---------------- DEFORMACION PUENTE ----------------
+
+# ---------------- GENERACIÓN DE DEFORMACIÓN DE PUENTES ----------------
 
 def deformacion_puente(x, auto_x):
 
+    # Recorre todos los puentes existentes
     for puente in PUENTES:
 
+        # Verifica que el punto consultado esté dentro del puente
         if puente["inicio"] <= x <= puente["fin"]:
 
+            # Verifica que el vehículo también esté sobre ese puente
             if puente["inicio"] <= auto_x <= puente["fin"]:
 
+                # Distancia entre el punto del puente y el vehículo
                 distancia = abs(x - auto_x)
 
+                # Solo se deforma una zona cercana al vehículo
                 if distancia < 140:
 
                     influencia_auto = (
@@ -525,35 +576,43 @@ def deformacion_puente(x, auto_x):
                         - puente["inicio"]
                     )
 
+                    # Posición relativa dentro del puente (0 a 1)
                     posicion = (
                         x - puente["inicio"]
                     ) / largo
 
-                    # extremos totalmente fijos
+                    # Mantener extremos del puente fijos
                     anclaje = math.sin(
                         posicion * math.pi
                     )
 
-                    # endurecer extremos
+                    # Suavizar deformación cerca de los extremos
                     anclaje = anclaje ** 1.5
 
+                    # Retornar deformación final
                     return (
                         influencia_auto
                         * anclaje
                         * 25
                     )
 
+    # Si no aplica deformación devuelve 0
     return 0
-#-------- GROUND SIN DEFORMACION PARA PUENTE -----------
+
+
+# -------- OBTENER ALTURA DEL TERRENO SIN DEFORMACIÓN DEL PUENTE -----------
 
 def get_ground_sin_deformacion(x, terrain):
 
+    # Protección si la posición está antes del terreno generado
     if x <= terrain[0][0]:
         return terrain[0][1]
 
+    # Protección si la posición está después del terreno generado
     if x >= terrain[-1][0]:
         return terrain[-1][1]
 
+    # Buscar el segmento correcto del terreno
     for i in range(len(terrain)-1):
 
         x1, y1 = terrain[i]
@@ -561,10 +620,12 @@ def get_ground_sin_deformacion(x, terrain):
 
         if x1 <= x <= x2:
 
+            # Interpolación entre puntos del terreno
             t = (x - x1)/(x2 - x1)
 
             altura = y1*(1-t) + y2*t
 
+            # Aplicar forma base del puente
             for puente in PUENTES:
 
                 if puente["inicio"] <= x <= puente["fin"]:
@@ -596,27 +657,34 @@ def get_ground_sin_deformacion(x, terrain):
 
     return terrain[-1][1]
 
-# ---------------- PENDIENTE ----------------
+
+# ---------------- CALCULAR INCLINACIÓN DEL TERRENO ----------------
 
 def get_slope(x, terrain):
 
+    # Obtiene dos alturas cercanas
     y1 = get_ground(x - 5, terrain)
     y2 = get_ground(x + 5, terrain)
 
+    # Convierte la diferencia en un ángulo
     return math.atan2(y2 - y1, 10)
 
-# ---------------- DIBUJO ----------------
+
+# ---------------- DIBUJAR TERRENO ----------------
 
 def dibujar_terreno(pantalla, terrain, cam_x, color_terreno):
 
+    # Listas para construir segmentos visibles del terreno
     puntos = []
     segmentos = []
     segmento_actual = []
 
+    # Recorrer todos los puntos del terreno
     for x, y in terrain:
 
         dentro_puente = False
 
+        # Detectar si el punto pertenece a un puente
         for puente in PUENTES:
 
             if puente["inicio"] <= x <= puente["fin"]:
@@ -626,8 +694,10 @@ def dibujar_terreno(pantalla, terrain, cam_x, color_terreno):
 
         pantalla_x = x - cam_x
 
+        # Solo procesar puntos visibles
         if -200 <= pantalla_x <= ANCHO + 200:
 
+            # Cortar el terreno donde existan puentes
             if dentro_puente:
 
                 if len(segmento_actual) > 1:
@@ -644,12 +714,14 @@ def dibujar_terreno(pantalla, terrain, cam_x, color_terreno):
                     (pantalla_x, y)
                 )
 
+    # Guardar último segmento válido
     if len(segmento_actual) > 1:
 
         segmentos.append(
             segmento_actual
         )
 
+    # Dibujar cada segmento del terreno
     for segmento in segmentos:
 
         poligono = segmento[:]
@@ -674,6 +746,7 @@ def dibujar_terreno(pantalla, terrain, cam_x, color_terreno):
             poligono
         )
 
+
 # ---------------- DIBUJAR NUBES ----------------
 
 def dibujar_nubes(
@@ -681,12 +754,16 @@ def dibujar_nubes(
     cam_x
 ):
 
+    # Recorrer todas las nubes generadas
     for x, y, tam in NUBES:
 
+        # Movimiento lento para efecto parallax
         px = x - cam_x * 0.3
 
+        # Dibujar solo las visibles
         if -200 <= px <= ANCHO + 200:
 
+            # Círculo central
             pygame.draw.circle(
                 pantalla,
                 BLANCO,
@@ -694,6 +771,7 @@ def dibujar_nubes(
                 tam
             )
 
+            # Lado derecho
             pygame.draw.circle(
                 pantalla,
                 BLANCO,
@@ -701,6 +779,7 @@ def dibujar_nubes(
                 int(tam * 0.8)
             )
 
+            # Lado izquierdo
             pygame.draw.circle(
                 pantalla,
                 BLANCO,
